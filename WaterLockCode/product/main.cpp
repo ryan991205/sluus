@@ -6,9 +6,9 @@
 #include "Door.h"
 #include "LockableDoor.h"
 #include "RepeatingDoor.h"
-#include "EWaterLockSides.h"
-#include "EWaterLockSides.h"
 #include "Communicator.h"
+#include "EDoorTypes.h"
+#include "EWaterLockSides.h"
 
 
 bool continueLoop = true;
@@ -41,26 +41,12 @@ int main()
 {
   std::cout << "\nProgram Start\n" << std::endl;
 
-  Communicator* simCom1_Normal        = new Communicator(5555);
-  Communicator* simCom2_Normal        = new Communicator(5556);
-  Communicator* simCom3_LockableDoor  = new Communicator(5557);
-  Communicator* simCom4_RepeatingDoor = new Communicator(5558);
-
-  WaterLock waterLock1_Normal(        new Door(Left,simCom1_Normal),
-                                      new Door(Right,simCom1_Normal),
-                                      simCom1_Normal);
-
-  WaterLock waterLock2_Normal(        new Door(Left,simCom2_Normal),
-                                      new Door(Right,simCom2_Normal),
-                                      simCom2_Normal);
-
-  WaterLock waterLock3_LockableDoor(  new LockableDoor(Left,simCom3_LockableDoor),
-                                      new LockableDoor(Right,simCom3_LockableDoor),
-                                      simCom3_LockableDoor);
-
-  WaterLock waterLock4_RepeatingDoor( new RepeatingDoor(Left,simCom4_RepeatingDoor),
-                                      new RepeatingDoor(Right,simCom4_RepeatingDoor),
-                                      simCom4_RepeatingDoor);
+  std::cout << "Connecting to hardware... " << std::flush;
+  WaterLock waterLock1_Normal(Normal, Left, Normal, 5555);
+  WaterLock waterLock2_Normal(Normal, Left, Normal, 5556);
+  WaterLock waterLock3_LockableDoor(Lockable, Left, Lockable, 5557);
+  WaterLock waterLock4_RepeatingDoor(Repeating, Left, Repeating, 5558);
+  std::cout << "done!" << std::endl;
 
   // Note: the following code sets up input handeling
   struct sigaction sigIntHandler;

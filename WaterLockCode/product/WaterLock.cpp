@@ -6,31 +6,40 @@
 
 
 // Note: exceptions = logic_error
-WaterLock::WaterLock(Door* lowWaterDoor, Door* highWaterDoor, Communicator* const TCP_Con)
+WaterLock::WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, EDoorTypes highWaterDoor, int port)
 {
-	if(lowWaterDoor == nullptr)
+	communicator = new Communicator(port);
+
+	waterSensor = new WaterSensor(&eventGenerator, communicator);
+
+	switch(lowWaterDoor)
 	{
-		throw std::logic_error("lowWaterDoor == nullptr");
+		case Normal    : this->lowWaterDoor = new Door(lowWaterDoorSide, &eventGenerator, communicator);          break;
+		case Repeating : this->lowWaterDoor = new RepeatingDoor(lowWaterDoorSide, &eventGenerator, communicator); break;
+		case Lockable  : this->lowWaterDoor = new LockableDoor(lowWaterDoorSide, &eventGenerator, communicator);  break;
+		default        : throw std::logic_error("lowWaterDoor == unsuperted door");     												  break;
 	}
 
-	if(highWaterDoor == nullptr)
+	EWaterLockSides highWaterDoorSide;
+	if(lowWaterDoorSide == Left)
 	{
-		throw std::logic_error("highWaterDoor == nullptr");
+		highWaterDoorSide = Right;
+	}
+	else
+	{
+		highWaterDoorSide = Left;
 	}
 
-	if(TCP_Con == nullptr)
+	switch(highWaterDoor)
 	{
-		throw std::logic_error("TCP_Cob == nullptr");
+		case Normal    : this->highWaterDoor = new Door(highWaterDoorSide, &eventGenerator, communicator);          break;
+		case Repeating : this->highWaterDoor = new RepeatingDoor(highWaterDoorSide, &eventGenerator, communicator); break;
+		case Lockable  : this->highWaterDoor = new LockableDoor(highWaterDoorSide, &eventGenerator, communicator);  break;
+		default        : throw std::logic_error("highWaterDoor == unsuperted door");     												    break;
 	}
 
-	communicator = TCP_Con;
-	waterSensor = new WaterSensor(communicator);
-
-	this->lowWaterDoor = lowWaterDoor;
-	this->highWaterDoor = highWaterDoor;
-
-	EDoorStates lowWatDoor = lowWaterDoor->GetState();
-	EDoorStates highWatDoor = highWaterDoor->GetState();
+	EDoorStates lowWatDoor = this->lowWaterDoor->GetState();
+	EDoorStates highWatDoor = this->highWaterDoor->GetState();
 
 	if((lowWatDoor == DoorOpen) && (highWatDoor == DoorOpen))
 	{
@@ -38,11 +47,11 @@ WaterLock::WaterLock(Door* lowWaterDoor, Door* highWaterDoor, Communicator* cons
 	}
 	else if(lowWatDoor == DoorOpen)
 	{
-		openDoor = lowWaterDoor;
+		openDoor = this->lowWaterDoor;
 	}
 	else if(highWatDoor == DoorOpen)
 	{
-		openDoor = highWaterDoor;
+		openDoor = this->highWaterDoor;
 	}
 	else
 	{
@@ -52,7 +61,8 @@ WaterLock::WaterLock(Door* lowWaterDoor, Door* highWaterDoor, Communicator* cons
 	state = ST_NormalOperation;
 	Entry_NormalOperationState();
 
-	pollThread = new std::thread(&WaterLock::PollEvents, this);
+	pollThread = nullptr;
+	StartPollingEventsOnPollThread();
 }
 
 WaterLock::~WaterLock()
@@ -92,6 +102,16 @@ void WaterLock::RaiseWater(EWaterLevels waterLevel)
 void WaterLock::LowerWater()
 {
 	lowWaterDoor->GetValve(Lower)->Open();
+}
+
+void WaterLock::StartPollingEventsOnPollThread()
+{
+	if(pollThread != nullptr)
+	{
+		KillPollThread();
+	}
+
+	pollThread = new std::thread(&WaterLock::PollEvents, this);
 }
 
 void WaterLock::PollEvents()
@@ -221,9 +241,13 @@ void WaterLock::HandleOpeningState(EEvents ev)
 			Entry_ClosingState();
 			break;
 		case EV_DoorStateChanged :
-			Exit_OpeningState();
-			oneDoorOpenSubState = ST_Open;
-			Entry_OpeningState();
+			if(openDoor->GetState() == DoorOpen)
+			{
+				Exit_OpeningState();
+				openDoor->KillPollThread();
+				oneDoorOpenSubState = ST_Open;
+				Entry_OpeningState();
+			}
 			break;
 		default : break;
 	}
@@ -239,10 +263,14 @@ void WaterLock::HandleClosingState(EEvents ev)
 			Entry_OpeningState();
 			break;
 		case EV_DoorStateChanged :
-			Exit_ClosingState();
-			Exit_OneDoorOpenState();
-			normalOperationSubState = ST_BothDoorsClosed;
-			Entry_BothDoorsClosedState();
+			if(openDoor->GetState() == DoorClosed)
+			{
+				Exit_ClosingState();
+				openDoor->KillPollThread();
+				Exit_OneDoorOpenState();
+				normalOperationSubState = ST_BothDoorsClosed;
+				Entry_BothDoorsClosedState();
+			}
 			break;
 		default : break;
 	}
@@ -325,6 +353,7 @@ void WaterLock::HandleRaisingWaterState(EEvents ev)
 				Exit_BothDoorsClosedState();
 				normalOperationSubState = ST_OneDoorOpen;
 				openDoor = highWaterDoor;
+				openDoor->StartPollingDoorSateOnPollThread();
 				Entry_OneDoorOpenState();
 			}
 			else
@@ -354,6 +383,7 @@ void WaterLock::HandleLoweringWaterState(EEvents ev)
 				Exit_BothDoorsClosedState();
 				normalOperationSubState = ST_OneDoorOpen;
 				openDoor = lowWaterDoor;
+				openDoor->StartPollingDoorSateOnPollThread();
 				Entry_OneDoorOpenState();
 			}
 			else
@@ -411,6 +441,8 @@ void WaterLock::Exit_OneDoorOpenState()
 
 void WaterLock::Entry_BothDoorsClosedState()
 {
+	waterSensor->StartPollingWaterLevelOnPollThread();
+
 	if(waterSensor->GetWaterLevel() == High)
 	{
 		bothDoorsClosedSubState = ST_LoweringWater;
@@ -425,7 +457,7 @@ void WaterLock::Entry_BothDoorsClosedState()
 
 void WaterLock::Exit_BothDoorsClosedState()
 {
-	// NOTE: no functionality
+	waterSensor->KillPollThread();
 }
 
 void WaterLock::Entry_OpeningState()

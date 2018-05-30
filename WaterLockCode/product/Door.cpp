@@ -1,8 +1,19 @@
 #include "Door.h"
 
 
-Door::Door(EWaterLockSides side, Communicator* const TCP_Con)
+Door::Door(EWaterLockSides side, EventGenerator* eventGenerator, Communicator* const TCP_Con)
 {
+	if(eventGenerator == nullptr)
+	{
+		throw std::logic_error("eventGenerator == nullptr");
+	}
+
+	if(TCP_Con == nullptr)
+	{
+		throw std::logic_error("TCP_Con == nullptr");
+	}
+
+	this->eventGenerator = eventGenerator;
 	this->side = side;
 	communicator = TCP_Con;
 
@@ -11,10 +22,14 @@ Door::Door(EWaterLockSides side, Communicator* const TCP_Con)
 	upperValve = new Valve(side, Upper);
 	insideLight = new TrafficLight(side, Inside, TCP_Con);
 	outsideLight = new TrafficLight(side, Outside, TCP_Con);
+
+	continueDoorStatePolling = false;
+	pollThread = nullptr;
 }
 
 Door::~Door()
 {
+	KillPollThread();
 	delete lowerValve;
 	delete middleValve;
 	delete upperValve;
@@ -47,7 +62,7 @@ Valve* Door::GetValve(EValves valve)
 
 void Door::Open()
 {
-	 std::string str = "SetDoor" + sideAsString(side) + ":open;";
+	std::string str = "SetDoor" + sideAsString(side) + ":open;";
 
     if(communicator->Transmit(str) != "ack;")
     {
@@ -74,13 +89,58 @@ void Door::Stop()
 
 }
 
+void Door::StartPollingDoorSateOnPollThread()
+{
+	if(pollThread != nullptr)
+	{
+		KillPollThread();
+	}
+
+	pollThread = new std::thread(&Door::PollDoorState, this);
+}
+
+void Door::PollDoorState()
+{
+	EDoorStates currentState = GetState();
+	EDoorStates newState = currentState;
+	eventGenerator->DoorStateChanged(); // Note: to make sure we didn't miss a state change.
+
+	continueDoorStatePolling = true;
+	while(continueDoorStatePolling)
+	{
+		newState = GetState();
+		if(currentState != newState)
+		{
+			currentState = newState;
+			eventGenerator->DoorStateChanged();
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	}
+}
+
+void Door::KillPollThread()
+{
+	if(pollThread != NULL)
+	{
+		if(pollThread->joinable())
+		{
+			continueDoorStatePolling = false;
+			pollThread->join();
+		}
+
+		delete pollThread;
+		pollThread = nullptr;
+	}
+}
+
 EDoorStates Door::GetState()
 {
 	std::string str = "GetDoor" +  sideAsString(side) + ";\0";
 
     str = communicator->Transmit(str);
 
-    if(str.compare("low;")== 0)                     return DoorLocked;
+    	   if(str.compare("low;")== 0)                return DoorLocked;
     else if(str.compare("belowValve2;") == 0)       return DoorClosed;
     else if(str.compare("aboveValve2;") == 0)       return DoorOpen;
     else if(str.compare("aboveValve3;") == 0)       return DoorClosing;

@@ -1,10 +1,11 @@
 #ifndef DOOR_H
 #define DOOR_H
 
-#include <stdio.h> // for NULL, remove when we have a diffrent lib
+#include <thread>
 
 #include "Valve.h"
 #include "TrafficLight.h"
+#include "EventGenerator.h"
 #include "interfaces/IDoor.h"
 #include "EWaterLockSides.h"
 #include "EValves.h"
@@ -22,14 +23,23 @@ class Door : public IDoor
 		TrafficLight* insideLight;
 		TrafficLight* outsideLight;
 		Communicator* communicator;
+		EventGenerator* eventGenerator;
+
+		std::thread* pollThread;
+		bool continueDoorStatePolling;
+
+		void PollDoorState();
 
 		std::string sideAsString(EWaterLockSides side);
 
 	public:
-		Door(EWaterLockSides side, Communicator* const TCP_Con);
+		Door(EWaterLockSides side, EventGenerator* eventGenerator, Communicator* const TCP_Con);
 		~Door();
 
 		TrafficLight* GetTrafficLight(ETrafficLights trafficLight);
+
+		void StartPollingDoorSateOnPollThread();
+		void KillPollThread();
 
 		Valve* GetValve(EValves valve);
 

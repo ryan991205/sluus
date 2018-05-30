@@ -13,7 +13,7 @@
 class LockableDoor : public Door, public ILockable
 {
 	public:
-		LockableDoor(EWaterLockSides side, Communicator* const TCP_Con);
+		LockableDoor(EWaterLockSides side,  EventGenerator* eventGenerator, Communicator* const TCP_Con);
 		~LockableDoor();
 
 		const DoorLock* GetLock() const;

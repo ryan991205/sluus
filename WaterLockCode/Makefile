@@ -1,6 +1,6 @@
 PRODUCT = waterlock
 
-CFLAGS = -Wall -Werror -Wextra -pedantic -ggdb -O0 -std=c++11 -pthread -Iproduct -Iproduct/interfaces -Iproduct/enums
+CFLAGS = -Wall -Werror -Wextra -pedantic -ggdb -O0 -std=c++11 -pthread -Iproduct -Iproduct/interfaces -Iproduct/enums -Iproduct/comLibs
 
 SOURCES = $(wildcard product/*.cpp) \
           $(wildcard product/comLibs/*.c)

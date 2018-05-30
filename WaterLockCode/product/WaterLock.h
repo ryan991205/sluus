@@ -4,15 +4,24 @@
 #include <thread>
 
 #include "Door.h"
+#include "RepeatingDoor.h"
+#include "LockableDoor.h"
 #include "EventGenerator.h"
 #include "WaterSensor.h"
 #include "Communicator.h"
 #include "EEvents.h"
 #include "EStates.h"
+#include "EDoorTypes.h"
 
 
 class WaterLock
 {
+	public:
+		WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, EDoorTypes highWaterDoor, int port);
+		~WaterLock();
+
+		EventGenerator* GetEventGenerator();
+
 	private:
 		Door* openDoor;
 		Door* lowWaterDoor;
@@ -28,16 +37,10 @@ class WaterLock
 		EBothDoorsClosedSubStates bothDoorsClosedSubState;
 		///// Sate Machine Members /////
 
-	public:
-		WaterLock(Door* lowWaterDoor, Door* highWaterDoor, Communicator* const TCP_Con);
-		~WaterLock();
-
-		EventGenerator* GetEventGenerator();
-
-	private:
 		bool continueEventPolling;
 		std::thread* pollThread;
 
+		void StartPollingEventsOnPollThread();
 		void PollEvents();
 		void KillPollThread();
 
