@@ -12,7 +12,9 @@ EEvents EventGenerator::GetEvent()
 		return EV_NoEvent;
 	}
 
-	return events.at(0);
+	EEvents event = events.at(0);
+	events.erase(events.begin());
+	return event;
 }
 
 void EventGenerator::StartButtonPressed()

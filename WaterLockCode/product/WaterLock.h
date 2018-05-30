@@ -34,9 +34,10 @@ class WaterLock
 
 	private:
 		bool continueEventPolling;
-		std::thread pollThread;
+		std::thread* pollThread;
 
 		void PollEvents();
+		void KillPollThread();
 
 		void RaiseWater(EWaterLevels waterLevel);
 		void LowerWater();

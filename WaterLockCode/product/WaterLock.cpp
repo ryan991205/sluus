@@ -4,14 +4,10 @@
 
 #include "EValves.h"
 
-#include <iostream> // Note: only for debugging
-
 
 // Note: exceptions = logic_error
 WaterLock::WaterLock(Door* lowWaterDoor, Door* highWaterDoor)
 {
-	std::cout << "\nWaterLock(): Hello!\n" << std::endl;
-
 	if(lowWaterDoor == nullptr)
 	{
 		throw std::logic_error("lowWaterDoor == nullptr");
@@ -48,11 +44,12 @@ WaterLock::WaterLock(Door* lowWaterDoor, Door* highWaterDoor)
 	state = ST_NormalOperation;
 	Entry_NormalOperationState();
 
-	std::thread a(&WaterLock::PollEvents, this);
+	pollThread = new std::thread(&WaterLock::PollEvents, this);
 }
 
 WaterLock::~WaterLock()
 {
+	KillPollThread();
 	delete lowWaterDoor;
 	delete highWaterDoor;
 }
@@ -89,15 +86,27 @@ void WaterLock::LowerWater()
 
 void WaterLock::PollEvents()
 {
-	std::cout << "\nPollEvents(): Hello!\n" << std::endl;
 	continueEventPolling = true;
 	while(continueEventPolling)
 	{
 		HandleEvent(eventGenerator.GetEvent());
-		std::cout << "\nPollEvents(): Loop!\n" << std::endl;
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	}
+}
 
-	pthread_exit(nullptr);
+void WaterLock::KillPollThread()
+{
+	if(pollThread != NULL)
+	{
+		if(pollThread->joinable())
+		{
+			continueEventPolling = false;
+			pollThread->join();
+		}
+
+		delete pollThread;
+		pollThread = nullptr;
+	}
 }
 
 void WaterLock::HandleEvent(EEvents ev)
