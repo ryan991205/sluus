@@ -33,17 +33,17 @@ void SetupInputHandeling(struct sigaction* sigIntHandler)
 
 void ShowMenu()
 {
-  std::cout << "Press ctrl + c to quit\n" << std::endl;
+  //std::cout << "Press ctrl + c to quit\n" << std::endl;
 }
 
 int main()
 {
   std::cout << "\nProgram Start\n" << std::endl;
 
-  WaterLock* waterLock1_Normal = new WaterLock(new Door(Left), new Door(Right));
-  WaterLock* waterLock2_Normal = new WaterLock(new Door(Left), new Door(Right));
-  WaterLock* waterLock3_DoorLock = new WaterLock(new LockableDoor(Left), new LockableDoor(Right));
-  WaterLock* waterLock4_RepeatingDoor = new WaterLock(new RepeatingDoor(Left), new RepeatingDoor(Right));
+  WaterLock waterLock1_Normal(new Door(Left), new Door(Right));
+  WaterLock waterLock2_Normal(new Door(Left), new Door(Right));
+  WaterLock waterLock3_DoorLock(new LockableDoor(Left), new LockableDoor(Right));
+  WaterLock waterLock4_RepeatingDoor(new RepeatingDoor(Left), new RepeatingDoor(Right));
 
   // Note: the following code sets up input handeling
   struct sigaction sigIntHandler;
@@ -54,11 +54,6 @@ int main()
   {
     ShowMenu();
   }
-
-  delete waterLock1_Normal;
-  delete waterLock2_Normal;
-  delete waterLock3_DoorLock;
-  delete waterLock4_RepeatingDoor;
 
   std::cout << "\nProgram End\n" << std::endl;
 }
