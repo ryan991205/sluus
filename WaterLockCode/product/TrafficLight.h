@@ -1,19 +1,24 @@
 #ifndef TRAFFICLIGHT_H
 #define TRAFFICLIGHT_H
 
+#include <string>
+
 #include "ITrafficLight.h"
 #include "EWaterLockSides.h"
 #include "ETrafficLights.h"
-
+#include "Communicator.h"
 
 class TrafficLight : public ITrafficLight
 {
 	private:
 		EWaterLockSides side;
 		ETrafficLights light;
+		Communicator* communicator;
+
+		std::string GetLightNumber();
 
 	public:
-		TrafficLight(EWaterLockSides side, ETrafficLights light);
+		TrafficLight(EWaterLockSides side, ETrafficLights light, Communicator* const TCP_Con);
 
 		void Green();
 

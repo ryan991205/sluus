@@ -1,6 +1,6 @@
 #include "RepeatingDoor.h"
 
-RepeatingDoor::RepeatingDoor(EWaterLockSides side) : Door(side)
+RepeatingDoor::RepeatingDoor(EWaterLockSides side, Communicator* const TCP_Con) : Door(side, TCP_Con)
 {
 
 }

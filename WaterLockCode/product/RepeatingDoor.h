@@ -8,7 +8,7 @@
 class RepeatingDoor : public Door, public IRepeatable
 {
 	public:
-		RepeatingDoor(EWaterLockSides side);
+		RepeatingDoor(EWaterLockSides side, Communicator* const TCP_Con);
 
 	private:
 		void Repeat();

@@ -7,12 +7,13 @@
 #include "DoorLock.h"
 #include "ILockable.h"
 #include "ILock.h"
+#include "Communicator.h"
 
 
 class LockableDoor : public Door, public ILockable
 {
 	public:
-		LockableDoor(EWaterLockSides side);
+		LockableDoor(EWaterLockSides side, Communicator* const TCP_Con);
 		~LockableDoor();
 
 		const DoorLock* GetLock() const;

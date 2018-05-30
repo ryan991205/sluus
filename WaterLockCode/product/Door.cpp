@@ -1,9 +1,10 @@
 #include "Door.h"
 
 
-Door::Door(EWaterLockSides side)
+Door::Door(EWaterLockSides side, Communicator* const TCP_Con)
 {
 	this->side = side;
+
 	lowerValve = new Valve(side, Lower);
 	middleValve = new Valve(side, Middle);
 	upperValve = new Valve(side, Upper);
@@ -62,6 +63,25 @@ void Door::Stop()
 
 EDoorStates Door::GetState()
 {
-	// TODO - implement Door::GetState
-	return MotorDamage;
+	std::string str = "GetDoor" +  sideAsString(side) + ";\0";
+
+    str = lockCommunicator->Transmit(str);
+
+    if(str.compare("low;")== 0)                     return DoorLocked;
+    else if(str.compare("belowValve2;") == 0)       return DoorClosed;
+    else if(str.compare("aboveValve2;") == 0)       return DoorOpen;
+    else if(str.compare("aboveValve3;") == 0)       return DoorClosing;
+    else if(str.compare("high;") ==0)               return DoorOpening;
+    else if(str.compare("high;") ==0)               return DoorStopped;
+    else if(str.compare("high;") ==0)               return MotorDamage;
+    else
+    {
+        // error
+    }
+}
+
+std::string sideAsString(EWaterLockSides waterLockSide)
+{
+    if(waterLockSide == Left)   return "Left";
+    else                        return "Right";
 }

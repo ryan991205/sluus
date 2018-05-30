@@ -4,15 +4,22 @@
 #include "ILock.h"
 #include "EWaterLockSides.h"
 #include "ELockStates.h"
+#include "Communicator.h"
+
+#include <string>
 
 
 class DoorLock : public ILock
 {
 	private:
 		EWaterLockSides side;
+		Communicator* communicator;
+
+		std::string sideAsString(EWaterLockSides side);
+
 
 	public:
-		DoorLock(EWaterLockSides side);
+		DoorLock(EWaterLockSides side, Communicator* const TCP_Con);
 
 		void Lock();
 

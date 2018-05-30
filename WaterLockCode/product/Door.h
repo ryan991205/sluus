@@ -9,6 +9,7 @@
 #include "EWaterLockSides.h"
 #include "EValves.h"
 #include "EDoorStates.h"
+#include "Communicator.h"
 
 
 class Door : public IDoor
@@ -21,8 +22,10 @@ class Door : public IDoor
 		TrafficLight* insideLight;
 		TrafficLight* outsideLight;
 
+		std::string sideAsString(EWaterLockSides side);
+
 	public:
-		Door(EWaterLockSides side);
+		Door(EWaterLockSides side, Communicator* const TCP_Con);
 		~Door();
 
 		TrafficLight* GetTrafficLight(ETrafficLights trafficLight);
