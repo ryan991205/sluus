@@ -21,6 +21,7 @@ class Door : public IDoor
 		Valve* upperValve;
 		TrafficLight* insideLight;
 		TrafficLight* outsideLight;
+		Communicator* communicator;
 
 		std::string sideAsString(EWaterLockSides side);
 

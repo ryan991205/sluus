@@ -8,6 +8,7 @@
 #include "RepeatingDoor.h"
 #include "EWaterLockSides.h"
 #include "EWaterLockSides.h"
+#include "Communicator.h"
 
 
 bool continueLoop = true;
@@ -39,11 +40,20 @@ void ShowMenu()
 int main()
 {
   std::cout << "\nProgram Start\n" << std::endl;
+  
+  Communicator* simCom1_Normal        = new Communicator(5555);
+  Communicator* simCom2_Normal        = new Communicator(5556);
+  Communicator* simCom3_LockableDoor  = new Communicator(5557);
+  Communicator* simCom4_RepeatingDoor = new Communicator(5558);
 
-  WaterLock waterLock1_Normal(new Door(Left), new Door(Right));
-  WaterLock waterLock2_Normal(new Door(Left), new Door(Right));
-  WaterLock waterLock3_DoorLock(new LockableDoor(Left), new LockableDoor(Right));
-  WaterLock waterLock4_RepeatingDoor(new RepeatingDoor(Left), new RepeatingDoor(Right));
+  WaterLock waterLock1_Normal(        new Door(Left,simCom1_Normal), 
+                                      new Door(Right,simCom1_Normal));
+  WaterLock waterLock2_Normal(        new Door(Left,simCom2_Normal), 
+                                      new Door(Right,simCom2_Normal));
+  WaterLock waterLock3_LockableDoor(  new LockableDoor(Left,simCom3_LockableDoor), 
+                                      new LockableDoor(Right,simCom3_LockableDoor));
+  WaterLock waterLock4_RepeatingDoor( new RepeatingDoor(Left,simCom4_RepeatingDoor), 
+                                      new RepeatingDoor(Right,simCom4_RepeatingDoor));
 
   // Note: the following code sets up input handeling
   struct sigaction sigIntHandler;
