@@ -30,5 +30,5 @@ std::string TrafficLight::GetLightNumber()
 	if(side == Left && light == Inside)          return "1";
     else if(side == Left && light == Outside)    return "2";
     else if(side == Right && light == Inside)    return "3";
-    else if(side == Right && light == Outside)   return "4";
+    else                                         return "4";
 }

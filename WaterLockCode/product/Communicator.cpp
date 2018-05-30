@@ -26,23 +26,23 @@ std::string Communicator::Transmit(const std::string message)
 
 void Communicator::Send(const std::string message)
 {
-    size_t size = message.length;
-    if(size == 0) 
+    size_t size = message.length();
+    if(size == 0)
     {
         // exeption
     }
 
-    send(sock, message.c_str(),size,0);  
+    send(sock, message.c_str(),size,0);
 }
 
 
 std::string Communicator::Recieve()
 {
-     size_t bytesReceived = recv(sock,buffer,RCVBUFSIZE,0);
-     if(bytesReceived  == 0)
-     {
-         return NULL;
-     }
-        
-     return std::string(remove_nl(buffer));;
+    size_t bytesReceived = recv(sock,buffer,RCVBUFSIZE,0);
+    if(bytesReceived  == 0)
+    {
+        return NULL;
+    }
+
+    return std::string(remove_nl(buffer));
 }

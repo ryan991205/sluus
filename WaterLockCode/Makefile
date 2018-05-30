@@ -2,10 +2,13 @@ PRODUCT = waterlock
 
 CFLAGS = -Wall -Werror -Wextra -pedantic -ggdb -O0 -std=c++11 -pthread -Iproduct -Iproduct/interfaces -Iproduct/enums
 
-SOURCES = $(wildcard product/*.cpp)
+SOURCES = $(wildcard product/*.cpp) \
+          $(wildcard product/comLibs/*.c)
+
 HEADERS = $(wildcard product/*.h) \
           $(wildcard product/interfaces/*.h) \
-          $(wildcard product/enums/*.h)
+          $(wildcard product/enums/*.h) \
+					$(wildcard product/comLibs/*.h)
 
 TEST = test_$(PRODUCT)
 TEST_SOURCES = $(filter-out product/main.cpp, $(SOURCES)) \

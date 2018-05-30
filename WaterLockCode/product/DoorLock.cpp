@@ -35,6 +35,7 @@ ELockStates DoorLock::GetState()
     {
         // error
     }
+    return LockDamaged; //FIXME
 }
 
 std::string DoorLock::sideAsString(EWaterLockSides waterLockSide)

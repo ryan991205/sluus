@@ -5,12 +5,11 @@
 WaterSensor::WaterSensor(Communicator* const TCP_Con)
 {
 	communicator = TCP_Con;
-
 }
 
 EWaterLevels WaterSensor::GetWaterLevel()
 {
-	std::string str = "GetWaterLevel;\n"; 
+	std::string str = "GetWaterLevel;\n";
 	str = communicator->Transmit(str);
 
     if(str.compare("low;")== 0)                     return Low;
@@ -22,4 +21,5 @@ EWaterLevels WaterSensor::GetWaterLevel()
     {
         // error
     }
+    return Low; //FIXME
 }

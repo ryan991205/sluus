@@ -6,7 +6,7 @@
 
 
 // Note: exceptions = logic_error
-WaterLock::WaterLock(Door* lowWaterDoor, Door* highWaterDoor)
+WaterLock::WaterLock(Door* lowWaterDoor, Door* highWaterDoor, Communicator* const TCP_Con)
 {
 	if(lowWaterDoor == nullptr)
 	{
@@ -17,6 +17,14 @@ WaterLock::WaterLock(Door* lowWaterDoor, Door* highWaterDoor)
 	{
 		throw std::logic_error("highWaterDoor == nullptr");
 	}
+
+	if(TCP_Con == nullptr)
+	{
+		throw std::logic_error("TCP_Cob == nullptr");
+	}
+
+	communicator = TCP_Con;
+	waterSensor = new WaterSensor(communicator);
 
 	this->lowWaterDoor = lowWaterDoor;
 	this->highWaterDoor = highWaterDoor;
@@ -50,8 +58,10 @@ WaterLock::WaterLock(Door* lowWaterDoor, Door* highWaterDoor)
 WaterLock::~WaterLock()
 {
 	KillPollThread();
+	delete waterSensor;
 	delete lowWaterDoor;
 	delete highWaterDoor;
+	delete communicator;
 }
 
 EventGenerator* WaterLock::GetEventGenerator()
@@ -309,7 +319,7 @@ void WaterLock::HandleRaisingWaterState(EEvents ev)
 		case EV_WaterLevelChanged :
 			Exit_RaisingWaterState();
 
-			if(waterSensor.GetWaterLevel() == High)
+			if(waterSensor->GetWaterLevel() == High)
 			{
 				CloseHighWaterDoorValves();
 				Exit_BothDoorsClosedState();
@@ -338,7 +348,7 @@ void WaterLock::HandleLoweringWaterState(EEvents ev)
 		case EV_WaterLevelChanged :
 			Exit_LoweringWaterState();
 
-			if(waterSensor.GetWaterLevel() == Low)
+			if(waterSensor->GetWaterLevel() == Low)
 			{
 				CloseLowWaterDoorValves();
 				Exit_BothDoorsClosedState();
@@ -401,7 +411,7 @@ void WaterLock::Exit_OneDoorOpenState()
 
 void WaterLock::Entry_BothDoorsClosedState()
 {
-	if(waterSensor.GetWaterLevel() == High)
+	if(waterSensor->GetWaterLevel() == High)
 	{
 		bothDoorsClosedSubState = ST_LoweringWater;
 		Entry_LoweringWaterState();
@@ -470,7 +480,7 @@ void WaterLock::Exit_InsideGreenLitState()
 
 void WaterLock::Entry_RaisingWaterState()
 {
-	RaiseWater(waterSensor.GetWaterLevel());
+	RaiseWater(waterSensor->GetWaterLevel());
 }
 
 void WaterLock::Exit_RaisingWaterState()

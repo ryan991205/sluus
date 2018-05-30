@@ -6,6 +6,7 @@
 #include "Door.h"
 #include "EventGenerator.h"
 #include "WaterSensor.h"
+#include "Communicator.h"
 #include "EEvents.h"
 #include "EStates.h"
 
@@ -16,7 +17,8 @@ class WaterLock
 		Door* openDoor;
 		Door* lowWaterDoor;
 		Door* highWaterDoor;
-		WaterSensor waterSensor;
+		WaterSensor* waterSensor;
+		Communicator* communicator;
 
 		///// Sate Machine Members /////
 		EventGenerator eventGenerator;
@@ -27,7 +29,7 @@ class WaterLock
 		///// Sate Machine Members /////
 
 	public:
-		WaterLock(Door* lowWaterDoor, Door* highWaterDoor);
+		WaterLock(Door* lowWaterDoor, Door* highWaterDoor, Communicator* const TCP_Con);
 		~WaterLock();
 
 		EventGenerator* GetEventGenerator();

@@ -6,7 +6,7 @@
 #include "Communicator.h"
 
 
-class WaterSensor : IWaterSensor
+class WaterSensor : public IWaterSensor
 {
 	public:
 		WaterSensor(Communicator* const TCP_Con);
@@ -14,9 +14,9 @@ class WaterSensor : IWaterSensor
 		EWaterLevels GetWaterLevel();
 
 	private:
-	Communicator* communicator; 
+	Communicator* communicator;
 		// private copy constructor and assignment operator to prevent making copies
-  	WaterSensor(const WaterSensor&) { /* do nothing */ };
+  	//WaterSensor(const WaterSensor&) { /* do nothing */ };
     WaterSensor& operator= (const WaterSensor&) { return *this; };
 };
 

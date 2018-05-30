@@ -91,9 +91,10 @@ EDoorStates Door::GetState()
     {
         // error
     }
+	return  MotorDamage; // FIXME
 }
 
-std::string sideAsString(EWaterLockSides waterLockSide)
+std::string Door::sideAsString(EWaterLockSides waterLockSide)
 {
     if(waterLockSide == Left)   return "Left";
     else                        return "Right";
