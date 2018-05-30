@@ -1,14 +1,17 @@
 #include "WaterLock.h"
 
 #include <stdexcept>
-#include <thread>
 
 #include "EValves.h"
+
+#include <iostream> // Note: only for debugging
 
 
 // Note: exceptions = logic_error
 WaterLock::WaterLock(Door* lowWaterDoor, Door* highWaterDoor)
 {
+	std::cout << "\nWaterLock(): Hello!\n" << std::endl;
+
 	if(lowWaterDoor == nullptr)
 	{
 		throw std::logic_error("lowWaterDoor == nullptr");
@@ -45,7 +48,7 @@ WaterLock::WaterLock(Door* lowWaterDoor, Door* highWaterDoor)
 	state = ST_NormalOperation;
 	Entry_NormalOperationState();
 
-	//std::thread() //FIXME
+	std::thread a(&WaterLock::PollEvents, this);
 }
 
 WaterLock::~WaterLock()
@@ -86,10 +89,12 @@ void WaterLock::LowerWater()
 
 void WaterLock::PollEvents()
 {
+	std::cout << "\nPollEvents(): Hello!\n" << std::endl;
 	continueEventPolling = true;
 	while(continueEventPolling)
 	{
 		HandleEvent(eventGenerator.GetEvent());
+		std::cout << "\nPollEvents(): Loop!\n" << std::endl;
 	}
 
 	pthread_exit(nullptr);

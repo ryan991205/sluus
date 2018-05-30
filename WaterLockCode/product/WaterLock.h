@@ -1,6 +1,8 @@
 #ifndef WATERLOCK_H
 #define WATERLOCK_H
 
+#include <thread>
+
 #include "Door.h"
 #include "EventGenerator.h"
 #include "WaterSensor.h"
@@ -32,6 +34,7 @@ class WaterLock
 
 	private:
 		bool continueEventPolling;
+		std::thread pollThread;
 
 		void PollEvents();
 
