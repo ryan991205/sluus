@@ -16,21 +16,17 @@
 class Door : public IDoor
 {
 	private:
-		EWaterLockSides side;
 		Valve* lowerValve;
 		Valve* middleValve;
 		Valve* upperValve;
 		TrafficLight* insideLight;
 		TrafficLight* outsideLight;
-		Communicator* communicator;
 		EventGenerator* eventGenerator;
 
 		std::thread* pollThread;
 		bool continueDoorStatePolling;
 
 		void PollDoorState();
-
-		std::string sideAsString(EWaterLockSides side);
 
 	public:
 		Door(EWaterLockSides side, EventGenerator* eventGenerator, Communicator* const TCP_Con);
@@ -54,6 +50,12 @@ class Door : public IDoor
 		// private copy constructor and assignment operator to prevent making copies
     Door(const Door&) { /* do nothing */ };
     Door& operator= (const Door&) { return *this; };
+
+		protected:
+			Communicator* communicator;
+			EWaterLockSides side;
+
+			std::string sideAsString(EWaterLockSides side);
 	};
 
 #endif

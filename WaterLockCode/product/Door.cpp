@@ -17,9 +17,9 @@ Door::Door(EWaterLockSides side, EventGenerator* eventGenerator, Communicator* c
 	this->side = side;
 	communicator = TCP_Con;
 
-	lowerValve = new Valve(side, Lower);
-	middleValve = new Valve(side, Middle);
-	upperValve = new Valve(side, Upper);
+	lowerValve = new Valve(side, Lower, communicator);
+	middleValve = new Valve(side, Middle, communicator);
+	upperValve = new Valve(side, Upper, communicator);
 	insideLight = new TrafficLight(side, Inside, TCP_Con);
 	outsideLight = new TrafficLight(side, Outside, TCP_Con);
 
@@ -62,39 +62,32 @@ Valve* Door::GetValve(EValves valve)
 
 void Door::Open()
 {
-	std::string str = "SetDoor" + sideAsString(side) + ":open;";
-
-    if(communicator->Transmit(str) != "ack;")
-    {
-         // error
-    }
+  if(communicator->Transmit("SetDoor" + sideAsString(side) + ":open;") != "ack;")
+  {
+		throw std::logic_error("Open() recieved !ack");
+  }
 }
 
 void Door::Close()
 {
-	std::string str = "SetDoor" + sideAsString(side) + ":close;";
-    if(communicator->Transmit(str) != "ack;")
-    {
-         // error
-    }
+  if(communicator->Transmit("SetDoor" + sideAsString(side) + ":close;") != "ack;")
+  {
+    throw std::logic_error("Close() recieved !ack");
+  }
 }
 
 void Door::Stop()
 {
-	std::string str = "SetDoor" + sideAsString(side) + ":stop;";
-    if(communicator->Transmit(str) != "ack;")
-    {
-         // error
-    }
+  if(communicator->Transmit("SetDoor" + sideAsString(side) + ":stop;") != "ack;")
+  {
+    throw std::logic_error("Stop() recieved !ack");
+  }
 
 }
 
 void Door::StartPollingDoorSateOnPollThread()
 {
-	if(pollThread != nullptr)
-	{
-		KillPollThread();
-	}
+	KillPollThread();
 
 	pollThread = new std::thread(&Door::PollDoorState, this);
 }
@@ -121,7 +114,7 @@ void Door::PollDoorState()
 
 void Door::KillPollThread()
 {
-	if(pollThread != NULL)
+	if(pollThread != nullptr)
 	{
 		if(pollThread->joinable())
 		{
@@ -136,26 +129,29 @@ void Door::KillPollThread()
 
 EDoorStates Door::GetState()
 {
-	std::string str = "GetDoor" +  sideAsString(side) + ";\0";
+  std::string answer = communicator->Transmit("GetDoor" +  sideAsString(side) + ";\0");
 
-    str = communicator->Transmit(str);
+	EDoorStates doorState;
 
-    	   if(str.compare("low;")== 0)                return DoorLocked;
-    else if(str.compare("belowValve2;") == 0)       return DoorClosed;
-    else if(str.compare("aboveValve2;") == 0)       return DoorOpen;
-    else if(str.compare("aboveValve3;") == 0)       return DoorClosing;
-    else if(str.compare("high;") ==0)               return DoorOpening;
-    else if(str.compare("high;") ==0)               return DoorStopped;
-    else if(str.compare("high;") ==0)               return MotorDamage;
-    else
-    {
-        // error
-    }
-	return  MotorDamage; // FIXME
+  	   if(answer.compare("low;"        ) == 0) doorState = DoorLocked;
+  else if(answer.compare("belowValve2;") == 0) doorState = DoorClosed;
+  else if(answer.compare("aboveValve2;") == 0) doorState = DoorOpen;
+  else if(answer.compare("aboveValve3;") == 0) doorState = DoorClosing;
+  else if(answer.compare("high;"       ) == 0) doorState = DoorOpening;
+  else if(answer.compare("high;"       ) == 0) doorState = DoorStopped;
+  else if(answer.compare("high;"       ) == 0) doorState = MotorDamage;
+  else throw std::logic_error("door state == unsuported state");
+
+	return  doorState;
 }
 
 std::string Door::sideAsString(EWaterLockSides waterLockSide)
 {
-    if(waterLockSide == Left)   return "Left";
-    else                        return "Right";
+	std::string side;
+
+       if(waterLockSide == Left ) side = "Left";
+  else if(waterLockSide == Right) side = "Right";
+	else throw std::logic_error("door side == unsuported side");
+
+	return side;
 }

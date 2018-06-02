@@ -9,9 +9,21 @@ class RepeatingDoor : public Door, public IRepeatable
 {
 	public:
 		RepeatingDoor(EWaterLockSides side, EventGenerator* eventGenerator, Communicator* const TCP_Con);
+		~RepeatingDoor();
+
+		void Open() override;
+		void Close() override;
+		void Stop() override;
 
 	private:
-		void Repeat();
+		bool continuePushingDoorCommand;
+		std::thread* pushThread;
+
+		void StartRepeatingDoorOpenCommandWithPushThread();
+		void StartRepeatingDoorCloseCommandWithPushThread();
+		void RepeatDoorOpenCommand();
+		void RepeatDoorCloseCommand();
+		void KillPushThread();
 };
 
 #endif

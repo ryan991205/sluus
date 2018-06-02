@@ -1,12 +1,12 @@
 #ifndef DOORLOCK_H
 #define DOORLOCK_H
 
+#include <string>
+
 #include "ILock.h"
 #include "EWaterLockSides.h"
 #include "ELockStates.h"
 #include "Communicator.h"
-
-#include <string>
 
 
 class DoorLock : public ILock
@@ -15,7 +15,7 @@ class DoorLock : public ILock
 		EWaterLockSides side;
 		Communicator* communicator;
 
-		std::string sideAsString(EWaterLockSides side);
+		std::string SideAsString();
 
 
 	public:

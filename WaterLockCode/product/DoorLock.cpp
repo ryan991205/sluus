@@ -2,44 +2,54 @@
 
 DoorLock::DoorLock(EWaterLockSides side, Communicator* const TCP_Con)
 {
+    if(TCP_Con == nullptr)
+    {
+        throw std::logic_error("DoorLock::DoorLock(): TCP_Con == nullptr");
+    }
+
 	communicator = TCP_Con;
 	this->side = side;
 }
 
 void DoorLock::Lock()
 {
-	std::string str = "SetDoorLock" + sideAsString(side) + ":on;";
-    if(communicator->Transmit(str) != "ack;")
+    if(communicator->Transmit("SetDoorLock" + SideAsString() + ":on;") != "ack;")
     {
-         // error
+        throw std::logic_error("DoorLock::Lock(): Lock() recieved !ack");
     }
 }
 
 void DoorLock::Unlock()
 {
-	std::string str = "SetDoorLock" + sideAsString(side) + ":off;";
-    if(communicator->Transmit(str) != "ack;")
+    if(communicator->Transmit("SetDoorLock" + SideAsString() + ":off;") != "ack;")
     {
-         // error
+        throw std::logic_error("DoorLock::Unlock(): Unlock() recieved !ack");
     }
 }
 
 ELockStates DoorLock::GetState()
 {
-	std::string str = "GetDoorLockState" +  sideAsString(side) +  ";\0";
-    str = communicator->Transmit(str);
+    std::string answer = communicator->Transmit("GetDoorLockState" +  SideAsString() +  ";\0");
 
-    if(str.compare("lockWorking;")== 0)             return LockWorking;
-    else if(str.compare("lockDamaged;") == 0)       return LockDamaged;
-    else
-    {
-        // error
-    }
-    return LockDamaged; //FIXME
+    ELockStates lockState;
+
+         if(answer.compare("lockWorking;") == 0) lockState = LockWorking;
+    else if(answer.compare("lockDamaged;") == 0) lockState = LockDamaged;
+    else throw std::logic_error("DoorLock::GetState(): lock state == unsuported state");
+
+    return lockState;
 }
 
-std::string DoorLock::sideAsString(EWaterLockSides waterLockSide)
+std::string DoorLock::SideAsString()
 {
-    if(waterLockSide == Left)   return "Left";
-    else                        return "Right";
+    std::string sideStr;
+
+    switch(side)
+    {
+        case Left  : sideStr = "Left";  break;
+        case Right : sideStr = "Right"; break;
+        default : throw std::logic_error("DoorLock::SideAsString(): waterLockSide == unsuported side"); break;
+    }
+
+    return sideStr;
 }

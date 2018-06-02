@@ -17,7 +17,7 @@ WaterLock::WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, 
 		case Normal    : this->lowWaterDoor = new Door(lowWaterDoorSide, &eventGenerator, communicator);          break;
 		case Repeating : this->lowWaterDoor = new RepeatingDoor(lowWaterDoorSide, &eventGenerator, communicator); break;
 		case Lockable  : this->lowWaterDoor = new LockableDoor(lowWaterDoorSide, &eventGenerator, communicator);  break;
-		default        : throw std::logic_error("lowWaterDoor == unsuperted door");     												  break;
+		default        : throw std::logic_error("WaterLock::WaterLock(): lowWaterDoor == unsuported door");     												  break;
 	}
 
 	EWaterLockSides highWaterDoorSide;
@@ -35,7 +35,7 @@ WaterLock::WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, 
 		case Normal    : this->highWaterDoor = new Door(highWaterDoorSide, &eventGenerator, communicator);          break;
 		case Repeating : this->highWaterDoor = new RepeatingDoor(highWaterDoorSide, &eventGenerator, communicator); break;
 		case Lockable  : this->highWaterDoor = new LockableDoor(highWaterDoorSide, &eventGenerator, communicator);  break;
-		default        : throw std::logic_error("highWaterDoor == unsuperted door");     												    break;
+		default        : throw std::logic_error("WaterLock::WaterLock(): highWaterDoor == unsuported door");     												    break;
 	}
 
 	EDoorStates lowWatDoor = this->lowWaterDoor->GetState();
@@ -43,7 +43,7 @@ WaterLock::WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, 
 
 	if((lowWatDoor == DoorOpen) && (highWatDoor == DoorOpen))
 	{
-		throw std::logic_error("both doors are open");
+		throw std::logic_error("WaterLock::WaterLock(): both doors are open");
 	}
 	else if(lowWatDoor == DoorOpen)
 	{
@@ -83,19 +83,11 @@ void WaterLock::RaiseWater(EWaterLevels waterLevel)
 {
 	switch(waterLevel)
 	{
-		case Low :
-			highWaterDoor->GetValve(Lower)->Open();
-			break;
-		case BelowMiddleValve :
-			highWaterDoor->GetValve(Lower)->Open();
-			break;
-		case AboveMiddleValve :
-			highWaterDoor->GetValve(Middle)->Open();
-			break;
-		case AboveUpperValve :
-			highWaterDoor->GetValve(Upper)->Open();
-			break;
-		default : break;
+		case Low              : highWaterDoor->GetValve(Lower)->Open();  											  break;
+		case BelowMiddleValve : highWaterDoor->GetValve(Lower)->Open();  											  break;
+		case AboveMiddleValve : highWaterDoor->GetValve(Middle)->Open(); 											  break;
+		case AboveUpperValve  : highWaterDoor->GetValve(Upper)->Open();  											  break;
+		default               : throw std::logic_error("WaterLock::RaiseWater(): waterLevel == unsuported water level"); break;
 	}
 }
 
@@ -126,7 +118,7 @@ void WaterLock::PollEvents()
 
 void WaterLock::KillPollThread()
 {
-	if(pollThread != NULL)
+	if(pollThread != nullptr)
 	{
 		if(pollThread->joinable())
 		{
@@ -167,7 +159,7 @@ void WaterLock::HandleNormalOperationState(EEvents ev)
 				case ST_Open            : Exit_OpenState();            break;
 				case ST_OutsideGreenLit : Exit_OutsideGreenLitState(); break;
 				case ST_InsideGreenLit  : Exit_InsideGreenLitState();  break;
-				default : break;
+				default : throw std::logic_error("WaterLock::HandleNormalOperationState(): oneDoorOpenSubState == unsupported state"); break;
 			}
 
 			Exit_OneDoorOpenState();
@@ -178,7 +170,7 @@ void WaterLock::HandleNormalOperationState(EEvents ev)
 			{
 				case ST_LoweringWater : Exit_LoweringWaterState(); break;
 				case ST_RaisingWater  : Exit_RaisingWaterState();  break;
-				default : break;
+				default : throw std::logic_error("WaterLock::HandleNormalOperationState(): bothDoorsClosedSubState == unsuported state"); break;
 			}
 
 			Exit_NormalOperationState();
@@ -194,7 +186,7 @@ void WaterLock::HandleNormalOperationState(EEvents ev)
 	{
 		case ST_OneDoorOpen     : HandleOneDoorOpenStates(ev);    break;
 		case ST_BothDoorsClosed : HandleBothDoorsClosedState(ev); break;
-		default : break;
+		default : throw std::logic_error("WaterLock::HandleNormalOperationState(): normalOperationSubState == unsuported state"); break;
 	}
 }
 
@@ -217,7 +209,7 @@ void WaterLock::HandleOneDoorOpenStates(EEvents ev)
 		case ST_Open            : HandleOpenState(ev);            break;
 		case ST_OutsideGreenLit : HandleOutsideGreenLitState(ev); break;
 		case ST_InsideGreenLit  : HandleInsideGreenLitState(ev);  break;
-		default : break;
+		default : throw std::logic_error("WaterLock::HandleOneDoorOpenStates(): oneDoorOpenSubState == unsuported state"); break;
 	}
 }
 
@@ -227,7 +219,7 @@ void WaterLock::HandleBothDoorsClosedState(EEvents ev)
 	{
 		case ST_RaisingWater  : HandleRaisingWaterState(ev);  break;
 		case ST_LoweringWater : HandleLoweringWaterState(ev); break;
-		default : break;
+		default : throw std::logic_error("WaterLock::HandleBothDoorsClosedState(): ev == unsuported event"); break;
 	}
 }
 
@@ -249,7 +241,7 @@ void WaterLock::HandleOpeningState(EEvents ev)
 				Entry_OpeningState();
 			}
 			break;
-		default : break;
+		default : throw std::logic_error("WaterLock::HandleOpeningState(): ev == unsuported event"); break;
 	}
 }
 
@@ -272,7 +264,7 @@ void WaterLock::HandleClosingState(EEvents ev)
 				Entry_BothDoorsClosedState();
 			}
 			break;
-		default : break;
+		default : throw std::logic_error("WaterLock::HandleClosingState(): ev == unsuported event"); break;
 	}
 }
 
@@ -295,7 +287,7 @@ void WaterLock::HandleOpenState(EEvents ev)
 			oneDoorOpenSubState = ST_InsideGreenLit;
 			Entry_InsideGreenLitState();
 			break;
-		default : break;
+		default : throw std::logic_error("WaterLock::HandleOpenState(): ev == unsuported event"); break;
 	}
 }
 
@@ -313,7 +305,7 @@ void WaterLock::HandleOutsideGreenLitState(EEvents ev)
 			oneDoorOpenSubState = ST_InsideGreenLit;
 			Entry_InsideGreenLitState();
 			break;
-		default : break;
+		default : throw std::logic_error("WaterLock::HandleOutsideGreenLitState(): ev == unsuported event"); break;
 	}
 }
 
@@ -331,7 +323,7 @@ void WaterLock::HandleInsideGreenLitState(EEvents ev)
 			oneDoorOpenSubState = ST_Open;
 			Entry_OpenState();
 			break;
-		default : break;
+		default : throw std::logic_error("WaterLock::HandleInsideGreenLitState(): ev == unsuported event"); break;
 	}
 }
 
@@ -361,7 +353,7 @@ void WaterLock::HandleRaisingWaterState(EEvents ev)
 				Entry_RaisingWaterState();
 			}
 			break;
-		default : break;
+		default : throw std::logic_error("WaterLock::HandleRaisingWaterState(): ev == unsuported event"); break;
 	}
 }
 
@@ -391,7 +383,7 @@ void WaterLock::HandleLoweringWaterState(EEvents ev)
 				Entry_LoweringWaterState();
 			}
 			break;
-		default : break;
+		default : throw std::logic_error("WaterLock::HandleLoweringWaterState(): ev == unsuported event"); break;
 	}
 }
 

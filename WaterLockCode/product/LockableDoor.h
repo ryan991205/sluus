@@ -1,8 +1,6 @@
 #ifndef LOCKABLEDOOR_H
 #define LOCKABLEDOOR_H
 
-#include <stdio.h> // for NULL
-
 #include "Door.h"
 #include "DoorLock.h"
 #include "ILockable.h"
@@ -17,6 +15,9 @@ class LockableDoor : public Door, public ILockable
 		~LockableDoor();
 
 		const DoorLock* GetLock() const;
+
+		void Open() override;
+		void Stop() override;
 
 	private:
 		DoorLock* lock;

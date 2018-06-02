@@ -6,12 +6,12 @@ WaterSensor::WaterSensor(EventGenerator* eventGenerator, Communicator* const TCP
 {
     if(eventGenerator == nullptr)
     {
-        throw std::logic_error("eventGenerator == nullptr");
+        throw std::logic_error("WaterSensor::WaterSensor(): eventGenerator == nullptr");
     }
 
     if(TCP_Con == nullptr)
     {
-        throw std::logic_error("TCP_Con == nullptr");
+        throw std::logic_error("WaterSensor::WaterSensor(): TCP_Con == nullptr");
     }
 
     this->eventGenerator = eventGenerator;
@@ -28,19 +28,18 @@ WaterSensor::~WaterSensor()
 
 EWaterLevels WaterSensor::GetWaterLevel()
 {
-	std::string str = "GetWaterLevel;\n";
-	str = communicator->Transmit(str);
+	std::string answer = communicator->Transmit("GetWaterLevel;\n");
 
-    if(str.compare("low;")== 0)                     return Low;
-    else if(str.compare("belowValve2;") == 0)       return BelowMiddleValve;
-    else if(str.compare("aboveValve2;") == 0)       return AboveMiddleValve;
-    else if(str.compare("aboveValve3;") == 0)       return AboveUpperValve;
-    else if(str.compare("high;") ==0)               return High;
-    else
-    {
-        // error
-    }
-    return Low; //FIXME
+    EWaterLevels waterLevel;
+
+         if(answer.compare("low;"        ) == 0) waterLevel = Low;
+    else if(answer.compare("belowValve2;") == 0) waterLevel = BelowMiddleValve;
+    else if(answer.compare("aboveValve2;") == 0) waterLevel = AboveMiddleValve;
+    else if(answer.compare("aboveValve3;") == 0) waterLevel = AboveUpperValve;
+    else if(answer.compare("high;"       ) == 0) waterLevel = High;
+    else throw std::logic_error("WaterSensor::GetWaterLevel(): waterLevel == unsuported waterLevel");
+
+    return waterLevel;
 }
 
 void WaterSensor::StartPollingWaterLevelOnPollThread()

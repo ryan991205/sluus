@@ -1,7 +1,13 @@
 #include "TrafficLight.h"
 
+
 TrafficLight::TrafficLight(EWaterLockSides side, ETrafficLights light, Communicator* const TCP_Con)
 {
+    if(TCP_Con == nullptr)
+    {
+        throw std::logic_error("TrafficLight::TrafficLight(): TCP_Con == nullptr");
+    }
+
 	communicator = TCP_Con;
 	this->side = side;
 	this->light = light;
@@ -9,26 +15,29 @@ TrafficLight::TrafficLight(EWaterLockSides side, ETrafficLights light, Communica
 
 void TrafficLight::Green()
 {
-	std::string str = "GetTrafficLight" + GetLightNumber() + "Green;\n";
-    if(communicator->Transmit(str) != "ack;")
+    if(communicator->Transmit("GetTrafficLight" + GetLightNumber() + "Green;\n") != "ack;")
     {
-         // error
+        throw std::logic_error("TrafficLight::Green(): Green() recieved !ack");
     }
 }
 
 void TrafficLight::Red()
 {
-std::string str = "GetTrafficLight" + GetLightNumber() + "Red;\n";
-     if(communicator->Transmit(str) != "ack;")
+    if(communicator->Transmit("GetTrafficLight" + GetLightNumber() + "Red;\n") != "ack;")
     {
-         // error
+        throw std::logic_error("TrafficLight::Red(): Red() recieved !ack");
     }
 }
 
 std::string TrafficLight::GetLightNumber()
 {
-	if(side == Left && light == Inside)          return "1";
-    else if(side == Left && light == Outside)    return "2";
-    else if(side == Right && light == Inside)    return "3";
-    else                                         return "4";
+    std::string TLightNr;
+
+	     if((side == Left ) && (light == Inside )) TLightNr = "1";
+    else if((side == Left ) && (light == Outside)) TLightNr = "2";
+    else if((side == Right) && (light == Inside )) TLightNr = "3";
+    else if((side == Right) && (light == Outside)) TLightNr = "4";
+    else throw std::logic_error("TrafficLight::GetLightNumber(): trafficLight not suported");
+
+    return TLightNr;
 }

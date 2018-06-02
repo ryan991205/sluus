@@ -8,15 +8,13 @@
 
 Communicator::Communicator(int port, const char* serverIP)
 {
-    sock = CreateTCPClientSocket(serverIP,port);
+    sock = CreateTCPClientSocket(serverIP, port);
 }
 
 Communicator::~Communicator()
 {
     close(sock);
 }
-
-
 
 std::string Communicator::Transmit(const std::string message)
 {
@@ -27,19 +25,19 @@ std::string Communicator::Transmit(const std::string message)
 void Communicator::Send(const std::string message)
 {
     size_t size = message.length();
-    if(size == 0)
+    if(message.length() == 0)
     {
-        // exeption
+        throw std::logic_error("message.Lenght != 0");
     }
 
-    send(sock, message.c_str(),size,0);
+    send(sock, message.c_str(), size, 0);
 }
 
 
 std::string Communicator::Recieve()
 {
     size_t bytesReceived = recv(sock,buffer,RCVBUFSIZE,0);
-    if(bytesReceived  == 0)
+    if(bytesReceived == 0)
     {
         return NULL;
     }

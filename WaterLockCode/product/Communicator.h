@@ -6,12 +6,12 @@
 
 #define RCVBUFSIZE 64   /* Size of receive buffer */
 
+
 class Communicator
 {
 public:
     Communicator(int port, const char* serverIP = "127.0.0.1");
     ~Communicator();
-
 
     std::string Transmit(const std::string message);      //sends and recieves
 
@@ -24,7 +24,6 @@ private:
 
     bool ValidMessage(const char message[]);
 };
-
 
 #endif
 

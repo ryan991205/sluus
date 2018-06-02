@@ -14,3 +14,29 @@ const DoorLock* LockableDoor::GetLock() const
 {
 	return lock;
 }
+
+void LockableDoor::Open()
+{
+	if(GetState() == DoorClosed)
+	{
+		lock->Unlock();
+	}
+
+  if(communicator->Transmit("SetDoor" + sideAsString(side) + ":open;") != "ack;")
+  {
+		throw std::logic_error("LockableDoor::Open(): Open() recieved !ack");
+  }
+}
+
+void LockableDoor::Stop()
+{
+  if(communicator->Transmit("SetDoor" + sideAsString(side) + ":stop;") != "ack;")
+  {
+    throw std::logic_error("LockableDoor::Stop(): Stop() recieved !ack");
+  }
+
+	if(GetState() == DoorClosed)
+	{
+		lock->Lock();
+	}
+}
