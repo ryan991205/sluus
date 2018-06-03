@@ -48,6 +48,8 @@ class WaterLock
 		void LowerWater();
 
 		///// Sate Machine Functions /////
+		void CreateInitialState();
+
 		void HandleEvent(EEvents ev);
 		void HandleNormalOperationState(EEvents ev);
 		void HandleEmergencyState(EEvents ev);

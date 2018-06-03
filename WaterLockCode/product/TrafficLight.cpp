@@ -51,3 +51,41 @@ std::string TrafficLight::GetLightNumber()
 
     return TLightNr;
 }
+
+//ETrafficLightColors TrafficLight::GetColor()
+//{
+//    std::string red = communicator->Transmit("GetTrafficLight" + GetLightNumber + "Red;\n")
+//    std::string green = communicator->Transmit("GetTrafficLight" + GetLightNumber + "Red;\n")
+//    ETrafficLightColors lightColor;
+//
+//    if((red != "on;") && (red != "off;"))
+//    {
+//        throw std::logic_error("TrafficLight::GetColor(): GetTrafficLightRed did not return a proper response");
+//    }
+//
+//    if((green != "on;") && (green != "off;"))
+//    {
+//        throw std::logic_error("TrafficLight::GetColor(): GetTrafficLightGreen did not return a proper response");
+//    }
+//
+//    if((red == "on;") && (green == "on;"))
+//    {
+//        throw std::logic_error("TrafficLight::GetColor(): both red and green are on");
+//    }
+//
+//    if((red == "off;") || (green == "off;"))
+//    {
+//        throw std::logic_error("TrafficLight::GetColor(): both red and green are off");
+//    }
+//
+//    if(red == "on;")
+//    {
+//        lightColor = Red;
+//    }
+//    else
+//    {
+//        lightColor = Green;
+//    }
+//
+//    return lightColor;
+//}

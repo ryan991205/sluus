@@ -45,23 +45,23 @@ int main()
   std::cout << "\nProgram Start\n" << std::endl;
 
   std::cout << "Connecting to hardware... " << std::flush;
-  WaterLock waterLock1_Normal(Normal, Left, Normal, 5555);
+  //WaterLock waterLock1_Normal(Normal, Left, Normal, 5555);
   //WaterLock waterLock2_Normal(Normal, Left, Normal, 5556);
   //WaterLock waterLock3_LockableDoor(Lockable, Left, Lockable, 5557);
-  //WaterLock waterLock4_RepeatingDoor(Repeating, Left, Repeating, 5558);
+  WaterLock waterLock4_RepeatingDoor(Repeating, Left, Repeating, 5558);
   std::cout << "done!\n" << std::endl;
 
   std::string ans = "";
-  while(ans != "quit")
+  while((ans != "quit") && (ans != "q"))
   {
     ShowMenu();
     std::cin >> ans;
 
-         if((ans == "s1StartBtn"         ) || (ans == "1s"))  waterLock1_Normal.GetEventGenerator()->StartButtonPressed();
-    else if((ans == "s1ReleaseInsideBtn" ) || (ans == "1i"))  waterLock1_Normal.GetEventGenerator()->ReleaseInsideButtonPressed();
-    else if((ans == "s1ReleaseOutsideBtn") || (ans == "1o"))  waterLock1_Normal.GetEventGenerator()->ReleaseOutsideButtonPressed();
-    else if((ans == "s1EmergencyBtn"     ) || (ans == "1e"))  waterLock1_Normal.GetEventGenerator()->EmergencyButtonPressed();
-    else if((ans == "s1StopEmergencyBtn" ) || (ans == "1n"))  waterLock1_Normal.GetEventGenerator()->ResumeNormalOperationsButtonPressed();
+    //     if((ans == "s1StartBtn"         ) || (ans == "1s"))  waterLock1_Normal.GetEventGenerator()->StartButtonPressed();
+    //else if((ans == "s1ReleaseInsideBtn" ) || (ans == "1i"))  waterLock1_Normal.GetEventGenerator()->ReleaseInsideButtonPressed();
+    //else if((ans == "s1ReleaseOutsideBtn") || (ans == "1o"))  waterLock1_Normal.GetEventGenerator()->ReleaseOutsideButtonPressed();
+    //else if((ans == "s1EmergencyBtn"     ) || (ans == "1e"))  waterLock1_Normal.GetEventGenerator()->EmergencyButtonPressed();
+    //else if((ans == "s1StopEmergencyBtn" ) || (ans == "1n"))  waterLock1_Normal.GetEventGenerator()->ResumeNormalOperationsButtonPressed();
 
     //else if((ans == "s2StartBtn"         ) || (ans == "2s"))  waterLock2_Normal.GetEventGenerator()->StartButtonPressed();
     //else if((ans == "s2ReleaseInsideBtn" ) || (ans == "2i"))  waterLock2_Normal.GetEventGenerator()->ReleaseInsideButtonPressed();
@@ -75,13 +75,13 @@ int main()
     //else if((ans == "s3EmergencyBtn"     ) || (ans == "3e"))  waterLock3_LockableDoor.GetEventGenerator()->EmergencyButtonPressed();
     //else if((ans == "s3StopEmergencyBtn" ) || (ans == "3n"))  waterLock3_LockableDoor.GetEventGenerator()->ResumeNormalOperationsButtonPressed();
 
-    //else if((ans == "s4StartBtn"         ) || (ans == "4s"))  waterLock4_RepeatingDoor.GetEventGenerator()->StartButtonPressed();
-    //else if((ans == "s4ReleaseInsideBtn" ) || (ans == "4i"))  waterLock4_RepeatingDoor.GetEventGenerator()->ReleaseInsideButtonPressed();
-    //else if((ans == "s4ReleaseOutsideBtn") || (ans == "4o"))  waterLock4_RepeatingDoor.GetEventGenerator()->ReleaseOutsideButtonPressed();
-    //else if((ans == "s4EmergencyBtn"     ) || (ans == "4e"))  waterLock4_RepeatingDoor.GetEventGenerator()->EmergencyButtonPressed();
-    //else if((ans == "s4StopEmergencyBtn" ) || (ans == "4n"))  waterLock4_RepeatingDoor.GetEventGenerator()->ResumeNormalOperationsButtonPressed();
+         if((ans == "s4StartBtn"         ) || (ans == "4s"))  waterLock4_RepeatingDoor.GetEventGenerator()->StartButtonPressed();
+    else if((ans == "s4ReleaseInsideBtn" ) || (ans == "4i"))  waterLock4_RepeatingDoor.GetEventGenerator()->ReleaseInsideButtonPressed();
+    else if((ans == "s4ReleaseOutsideBtn") || (ans == "4o"))  waterLock4_RepeatingDoor.GetEventGenerator()->ReleaseOutsideButtonPressed();
+    else if((ans == "s4EmergencyBtn"     ) || (ans == "4e"))  waterLock4_RepeatingDoor.GetEventGenerator()->EmergencyButtonPressed();
+    else if((ans == "s4StopEmergencyBtn" ) || (ans == "4n"))  waterLock4_RepeatingDoor.GetEventGenerator()->ResumeNormalOperationsButtonPressed();
 
-    else if((ans == "quit") || (ans = "q")) std::cout << "Exiting program." << std::endl;
+    else if((ans == "quit") || (ans == "q")) std::cout << "Exiting program." << std::endl;
     else std::cout << "Input was: [" << ans << "]. Input not recognized, please try again." << std::endl;
 
     std::cout << std::endl;

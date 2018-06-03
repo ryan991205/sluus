@@ -1,5 +1,7 @@
 #include "LockableDoor.h"
 
+#include <iostream>
+
 LockableDoor::LockableDoor(EWaterLockSides side,  EventGenerator* eventGenerator, Communicator* const TCP_Con) : Door(side, eventGenerator, TCP_Con)
 {
 	lock = new DoorLock(side,TCP_Con);
@@ -17,10 +19,7 @@ const DoorLock* LockableDoor::GetLock() const
 
 void LockableDoor::Open()
 {
-	if(GetState() == DoorClosed)
-	{
-		lock->Unlock();
-	}
+	lock->Unlock();
 
   if(communicator->Transmit("SetDoor" + SideAsString() + ":open;\n") != "ack;")
   {

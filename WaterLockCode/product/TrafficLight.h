@@ -6,6 +6,7 @@
 #include "ITrafficLight.h"
 #include "EWaterLockSides.h"
 #include "ETrafficLights.h"
+//#include "ETrafficLightColors.h"
 #include "Communicator.h"
 
 class TrafficLight : public ITrafficLight
@@ -23,6 +24,8 @@ class TrafficLight : public ITrafficLight
 		void Green();
 
 		void Red();
+
+		//ETrafficLightColors GetColor();
 
 		// private copy constructor and assignment operator to prevent making copies
     TrafficLight(const TrafficLight&) { /* do nothing */ };

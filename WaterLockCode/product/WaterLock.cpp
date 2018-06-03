@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "EValves.h"
+//#include "ETrafficLightColors.h"
 
 #include <iostream> // Note: debug
 
@@ -18,7 +19,7 @@ WaterLock::WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, 
 		case Normal    : this->lowWaterDoor = new Door(lowWaterDoorSide, &eventGenerator, communicator);          break;
 		case Repeating : this->lowWaterDoor = new RepeatingDoor(lowWaterDoorSide, &eventGenerator, communicator); break;
 		case Lockable  : this->lowWaterDoor = new LockableDoor(lowWaterDoorSide, &eventGenerator, communicator);  break;
-		default        : throw std::logic_error("WaterLock::WaterLock(): lowWaterDoor == unsuported door");     												  break;
+		default        : throw std::logic_error("WaterLock::WaterLock(): lowWaterDoor == unsuported door");     	break;
 	}
 
 	EWaterLockSides highWaterDoorSide;
@@ -36,9 +37,32 @@ WaterLock::WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, 
 		case Normal    : this->highWaterDoor = new Door(highWaterDoorSide, &eventGenerator, communicator);          break;
 		case Repeating : this->highWaterDoor = new RepeatingDoor(highWaterDoorSide, &eventGenerator, communicator); break;
 		case Lockable  : this->highWaterDoor = new LockableDoor(highWaterDoorSide, &eventGenerator, communicator);  break;
-		default        : throw std::logic_error("WaterLock::WaterLock(): highWaterDoor == unsuported door");     												    break;
+		default        : throw std::logic_error("WaterLock::WaterLock(): highWaterDoor == unsuported door");     		break;
 	}
 
+	CreateInitialState();
+	Entry_NormalOperationState();
+
+	pollThread = nullptr;
+	StartPollingEventsOnPollThread();
+}
+
+WaterLock::~WaterLock()
+{
+	KillPollThread();
+	delete waterSensor;
+	delete lowWaterDoor;
+	delete highWaterDoor;
+	delete communicator;
+}
+
+EventGenerator* WaterLock::GetEventGenerator()
+{
+	return &eventGenerator;
+}
+
+void WaterLock::CreateInitialState()
+{
 	EDoorStates lowWatDoor = this->lowWaterDoor->GetState();
 	EDoorStates highWatDoor = this->highWaterDoor->GetState();
 
@@ -60,24 +84,46 @@ WaterLock::WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, 
 	}
 
 	state = ST_NormalOperation;
-	Entry_NormalOperationState();
 
-	pollThread = nullptr;
-	StartPollingEventsOnPollThread();
-}
+	if(openDoor == nullptr)
+	{
+		normalOperationSubState = ST_BothDoorsClosed;
 
-WaterLock::~WaterLock()
-{
-	KillPollThread();
-	delete waterSensor;
-	delete lowWaterDoor;
-	delete highWaterDoor;
-	delete communicator;
-}
+		EWaterLevels waterLevel = waterSensor->GetWaterLevel();
+		if((waterLevel == BelowMiddleValve) || (waterLevel == Low))
+		{
+			bothDoorsClosedSubState = ST_LoweringWater;
+		}
+		else
+		{
+			bothDoorsClosedSubState = ST_RaisingWater;
+		}
+	}
+	else
+	{
+		normalOperationSubState = ST_OneDoorOpen;
 
-EventGenerator* WaterLock::GetEventGenerator()
-{
-	return &eventGenerator;
+		openDoor->GetTrafficLight(Inside)->Red();
+		openDoor->GetTrafficLight(Outside)->Red();
+
+		EDoorStates openDoorState = openDoor->GetState();
+		if((openDoorState == DoorLocked) || (openDoorState == DoorClosed) || (openDoorState == DoorOpening) || (openDoorState == DoorStopped))
+		{
+			oneDoorOpenSubState = ST_Opening;
+		}
+		else if(openDoorState == DoorOpen)
+		{
+			oneDoorOpenSubState = ST_Open;
+		}
+		else if(openDoorState == DoorClosing)
+		{
+			oneDoorOpenSubState = ST_Closing;
+		}
+		else
+		{
+			throw std::logic_error("WaterLock::CreateInitialState(): openDoor has motor damage");
+		}
+	}
 }
 
 void WaterLock::RaiseWater(EWaterLevels waterLevel)
@@ -379,8 +425,8 @@ void WaterLock::HandleRaisingWaterState(EEvents ev)
 				normalOperationSubState = ST_OneDoorOpen;
 				openDoor = highWaterDoor;
 				Entry_OneDoorOpenState();
-
-				std::cout << "opening high water door" << std::endl;
+				oneDoorOpenSubState = ST_Opening;
+				Entry_OpeningState();
 			}
 			else
 			{
@@ -412,6 +458,8 @@ void WaterLock::HandleLoweringWaterState(EEvents ev)
 				normalOperationSubState = ST_OneDoorOpen;
 				openDoor = lowWaterDoor;
 				Entry_OneDoorOpenState();
+				oneDoorOpenSubState = ST_Opening;
+				Entry_OpeningState();
 			}
 			else
 			{
@@ -426,25 +474,39 @@ void WaterLock::Entry_NormalOperationState()
 {
 	std::cout << "WaterLock::Entry_NormalOperationState()" << std::endl;
 
-	// TODO: return to deep history state
+	//return to deep history state
+	switch(normalOperationSubState)
+	{
+		case ST_BothDoorsClosed :
+			Entry_BothDoorsClosedState();
 
-	if(openDoor == nullptr)
-	{
-		normalOperationSubState = ST_BothDoorsClosed;
-		Entry_BothDoorsClosedState();
-	}
-	else
-	{
-		normalOperationSubState = ST_OneDoorOpen;
-		Entry_OneDoorOpenState();
+			switch(bothDoorsClosedSubState)
+			{
+				case ST_RaisingWater  : Entry_RaisingWaterState();  break;
+				case ST_LoweringWater : Entry_LoweringWaterState(); break;
+				default : throw std::logic_error("WaterLock::Entry_NormalOperationState(): bothDoorsClosedSubState == unsuported state");
+			}
+			break;
+		case ST_OneDoorOpen :
+			Entry_OneDoorOpenState();
+
+			switch(oneDoorOpenSubState)
+			{
+				case ST_Opening         : Entry_OpeningState();         break;
+				case ST_Closing         : Entry_ClosingState();         break;
+				case ST_Open            : Entry_OpenState();            break;
+				case ST_OutsideGreenLit : Entry_OutsideGreenLitState(); break;
+				case ST_InsideGreenLit  : Entry_InsideGreenLitState();  break;
+				default : throw std::logic_error("WaterLock::Entry_NormalOperationState(): oneDoorOpenSubState == unsuported state");
+			}
+			break;
+		default : throw std::logic_error("WaterLock::Entry_NormalOperationState(): normalOperationSubState == unsuported state");
 	}
 }
 
 void WaterLock::Exit_NormalOperationState()
 {
 	std::cout << "WaterLock::Exit_NormalOperationState()" << std::endl;
-
-	// TODO: save deep history
 }
 
 void WaterLock::Entry_EmergencyState()
@@ -467,8 +529,8 @@ void WaterLock::Entry_OneDoorOpenState()
 {
 	std::cout << "WaterLock::Entry_OneDoorOpenState()" << std::endl;
 
-	oneDoorOpenSubState = ST_Opening;
-	Entry_OpeningState();
+	//oneDoorOpenSubState = ST_Opening;
+	//Entry_OpeningState();
 }
 
 void WaterLock::Exit_OneDoorOpenState()
