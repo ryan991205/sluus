@@ -13,7 +13,7 @@ DoorLock::DoorLock(EWaterLockSides side, Communicator* const TCP_Con)
 
 void DoorLock::Lock()
 {
-    if(communicator->Transmit("SetDoorLock" + SideAsString() + ":on;") != "ack;")
+    if(communicator->Transmit("SetDoorLock" + SideAsString() + ":on;\n") != "ack;")
     {
         throw std::logic_error("DoorLock::Lock(): Lock() recieved !ack");
     }
@@ -21,7 +21,7 @@ void DoorLock::Lock()
 
 void DoorLock::Unlock()
 {
-    if(communicator->Transmit("SetDoorLock" + SideAsString() + ":off;") != "ack;")
+    if(communicator->Transmit("SetDoorLock" + SideAsString() + ":off;\n") != "ack;")
     {
         throw std::logic_error("DoorLock::Unlock(): Unlock() recieved !ack");
     }

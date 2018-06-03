@@ -64,7 +64,7 @@ Valve* Door::GetValve(EValves valve)
 
 void Door::Open()
 {
-  if(communicator->Transmit("SetDoor" + SideAsString() + ":open;") != "ack;")
+  if(communicator->Transmit("SetDoor" + SideAsString() + ":open;\n") != "ack;")
   {
 		throw std::logic_error("Door::Open(): Open() recieved !ack");
   }
@@ -72,7 +72,7 @@ void Door::Open()
 
 void Door::Close()
 {
-  if(communicator->Transmit("SetDoor" + SideAsString() + ":close;") != "ack;")
+  if(communicator->Transmit("SetDoor" + SideAsString() + ":close;\n") != "ack;")
   {
     throw std::logic_error("Door::Close(): Close() recieved !ack");
   }
@@ -80,7 +80,7 @@ void Door::Close()
 
 void Door::Stop()
 {
-  if(communicator->Transmit("SetDoor" + SideAsString() + ":stop;") != "ack;")
+  if(communicator->Transmit("SetDoor" + SideAsString() + ":stop;\n") != "ack;")
   {
     throw std::logic_error("Door::Stop(): Stop() recieved !ack");
   }
