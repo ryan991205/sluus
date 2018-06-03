@@ -1,9 +1,14 @@
+#include "WaterSensor.h"
+
 #include <string>
 
-#include "WaterSensor.h"
+#include <iostream>
+
 
 WaterSensor::WaterSensor(EventGenerator* eventGenerator, Communicator* const TCP_Con)
 {
+    //std::cout << "WaterSensor::WaterSensor(): Hello!" << std::endl;
+
     if(eventGenerator == nullptr)
     {
         throw std::logic_error("WaterSensor::WaterSensor(): eventGenerator == nullptr");
@@ -28,17 +33,22 @@ WaterSensor::~WaterSensor()
 
 EWaterLevels WaterSensor::GetWaterLevel()
 {
-	std::string answer = communicator->Transmit("GetWaterLevel;\n");
+	std::string answer = communicator->Transmit("GetWaterLevel;");
+    //std::cout << "\nanswer: " << answer << std::endl;
 
-    EWaterLevels waterLevel;
+    EWaterLevels waterLevel = Low;
 
          if(answer.compare("low;"        ) == 0) waterLevel = Low;
     else if(answer.compare("belowValve2;") == 0) waterLevel = BelowMiddleValve;
     else if(answer.compare("aboveValve2;") == 0) waterLevel = AboveMiddleValve;
     else if(answer.compare("aboveValve3;") == 0) waterLevel = AboveUpperValve;
     else if(answer.compare("high;"       ) == 0) waterLevel = High;
-    else throw std::logic_error("WaterSensor::GetWaterLevel(): waterLevel == unsuported waterLevel");
+    else
+    {
+        //std::cout << "\nanswer: " << answer << std::endl;
+        throw std::logic_error("WaterSensor::GetWaterLevel(): waterLevel == unsuported waterLevel");
 
+    }
     return waterLevel;
 }
 
@@ -58,6 +68,8 @@ void WaterSensor::PollWaterLevel()
     continueWaterLevelPolling = true;
     while(continueWaterLevelPolling)
     {
+        //std::cout << "WaterSensor::PollWaterLevel(): loop!" << std::endl; // Note: debug
+
         newWaterLevel = GetWaterLevel();
         if(currentWaterLevel != newWaterLevel)
         {
@@ -65,7 +77,7 @@ void WaterSensor::PollWaterLevel()
             eventGenerator->WaterLevelChanged();
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 }
 

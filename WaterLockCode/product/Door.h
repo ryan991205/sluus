@@ -55,7 +55,7 @@ class Door : public IDoor
 			Communicator* communicator;
 			EWaterLockSides side;
 
-			std::string sideAsString(EWaterLockSides side);
+			std::string SideAsString();
 	};
 
 #endif

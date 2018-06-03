@@ -4,10 +4,14 @@
 
 #include "EValves.h"
 
+#include <iostream> // Note: debug
+
 
 // Note: exceptions = logic_error
 WaterLock::WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, EDoorTypes highWaterDoor, int port)
 {
+	std::cout << "WaterLock::WaterLock(): Hello!" << std::endl;
+
 	communicator = new Communicator(port);
 
 	waterSensor = new WaterSensor(&eventGenerator, communicator);
@@ -83,10 +87,10 @@ void WaterLock::RaiseWater(EWaterLevels waterLevel)
 {
 	switch(waterLevel)
 	{
-		case Low              : highWaterDoor->GetValve(Lower)->Open();  											  break;
-		case BelowMiddleValve : highWaterDoor->GetValve(Lower)->Open();  											  break;
-		case AboveMiddleValve : highWaterDoor->GetValve(Middle)->Open(); 											  break;
-		case AboveUpperValve  : highWaterDoor->GetValve(Upper)->Open();  											  break;
+		case Low              : highWaterDoor->GetValve(Lower)->Open();  break;
+		case BelowMiddleValve : highWaterDoor->GetValve(Lower)->Open();  break;
+		case AboveMiddleValve : highWaterDoor->GetValve(Middle)->Open(); break;
+		case AboveUpperValve  : highWaterDoor->GetValve(Upper)->Open();  break;
 		default               : throw std::logic_error("WaterLock::RaiseWater(): waterLevel == unsuported water level"); break;
 	}
 }
@@ -98,10 +102,7 @@ void WaterLock::LowerWater()
 
 void WaterLock::StartPollingEventsOnPollThread()
 {
-	if(pollThread != nullptr)
-	{
-		KillPollThread();
-	}
+	KillPollThread();
 
 	pollThread = new std::thread(&WaterLock::PollEvents, this);
 }
@@ -111,6 +112,8 @@ void WaterLock::PollEvents()
 	continueEventPolling = true;
 	while(continueEventPolling)
 	{
+		std::cout << "WaterLock::PollEvents(): loop!" << std::endl; // Note: debug
+
 		HandleEvent(eventGenerator.GetEvent());
 		std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	}

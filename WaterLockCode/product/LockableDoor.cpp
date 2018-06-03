@@ -22,7 +22,7 @@ void LockableDoor::Open()
 		lock->Unlock();
 	}
 
-  if(communicator->Transmit("SetDoor" + sideAsString(side) + ":open;") != "ack;")
+  if(communicator->Transmit("SetDoor" + SideAsString() + ":open;") != "ack;")
   {
 		throw std::logic_error("LockableDoor::Open(): Open() recieved !ack");
   }
@@ -30,7 +30,7 @@ void LockableDoor::Open()
 
 void LockableDoor::Stop()
 {
-  if(communicator->Transmit("SetDoor" + sideAsString(side) + ":stop;") != "ack;")
+  if(communicator->Transmit("SetDoor" + SideAsString() + ":stop;") != "ack;")
   {
     throw std::logic_error("LockableDoor::Stop(): Stop() recieved !ack");
   }

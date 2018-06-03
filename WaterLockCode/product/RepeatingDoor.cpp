@@ -1,5 +1,7 @@
 #include "RepeatingDoor.h"
 
+#include <iostream> // Note: debug
+
 RepeatingDoor::RepeatingDoor(EWaterLockSides side, EventGenerator* eventGenerator, Communicator* const TCP_Con) : Door(side, eventGenerator, TCP_Con)
 {
 	continuePushingDoorCommand = false;
@@ -23,7 +25,7 @@ void RepeatingDoor::Close()
 
 void RepeatingDoor::Stop()
 {
-  if(communicator->Transmit("SetDoor" + sideAsString(side) + ":stop;") != "ack;")
+  if(communicator->Transmit("SetDoor" + SideAsString() + ":stop;") != "ack;")
   {
     throw std::logic_error("RepeatingDoor::Stop(): Stop() recieved !ack");
   }
@@ -50,7 +52,9 @@ void RepeatingDoor::RepeatDoorOpenCommand()
 	continuePushingDoorCommand = true;
 	while(continuePushingDoorCommand)
 	{
-		if(communicator->Transmit("SetDoor" + sideAsString(side) + ":open;") != "ack;")
+		std::cout << "RepeatingDoor::RepeatDoorOpenCommand(): loop!" << std::endl; // Note: debug
+
+		if(communicator->Transmit("SetDoor" + SideAsString() + ":open;") != "ack;")
   	{
 			throw std::logic_error("RepeatingDoor::RepeatDoorOpenCommand(): RepeatDoorOpenCommand() recieved !ack");
   	}
@@ -64,7 +68,7 @@ void RepeatingDoor::RepeatDoorCloseCommand()
 	continuePushingDoorCommand = true;
 	while(continuePushingDoorCommand)
 	{
-		if(communicator->Transmit("SetDoor" + sideAsString(side) + ":close;") != "ack;")
+		if(communicator->Transmit("SetDoor" + SideAsString() + ":close;") != "ack;")
   	{
     	throw std::logic_error("RepeatingDoor::RepeatDoorCloseCommand(): RepeatDoorCloseCommand() recieved !ack");
   	}

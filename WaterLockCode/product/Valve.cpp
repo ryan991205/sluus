@@ -1,5 +1,7 @@
 #include "Valve.h"
 
+#include <iostream>
+
 Valve::Valve(EWaterLockSides side, EValves valve, Communicator* communicator)
 {
 	if(communicator== nullptr)
@@ -24,6 +26,7 @@ void Valve::Close()
 {
 	if(communicator->Transmit("SetDoor" + SideAsString() + "Valve" + ValveAsString() + ":close") != "ack;")
   {
+		std::cout << "!ack" << std::endl;
 		throw std::logic_error("Valve::Close(): Open() recieved !ack");
   }
 }
@@ -34,7 +37,7 @@ std::string Valve::SideAsString()
 
 	switch(side)
 	{
-		case Left  : sideStr = "Left"; break;
+		case Left  : sideStr = "Left";  break;
 		case Right : sideStr = "Right"; break;
 		default : throw std::logic_error("Valve::SideAsString(): door side == unsuported side"); break;
 	}
