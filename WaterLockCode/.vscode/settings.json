@@ -35,6 +35,8 @@
     "cmath": "cpp",
     "cstring": "cpp",
     "deque": "cpp",
-    "numeric": "cpp"
+    "numeric": "cpp",
+    "mutex": "cpp",
+    "system_error": "cpp"
   }
 }

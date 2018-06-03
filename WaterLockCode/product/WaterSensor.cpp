@@ -33,7 +33,7 @@ WaterSensor::~WaterSensor()
 
 EWaterLevels WaterSensor::GetWaterLevel()
 {
-	std::string answer = communicator->Transmit("GetWaterLevel;");
+	std::string answer = communicator->Transmit("GetWaterLevel;\n");
     //std::cout << "\nanswer: " << answer << std::endl;
 
     EWaterLevels waterLevel = Low;

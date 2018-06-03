@@ -25,7 +25,7 @@ void RepeatingDoor::Close()
 
 void RepeatingDoor::Stop()
 {
-  if(communicator->Transmit("SetDoor" + SideAsString() + ":stop;") != "ack;")
+  if(communicator->Transmit("SetDoor" + SideAsString() + ":stop;\n") != "ack;")
   {
     throw std::logic_error("RepeatingDoor::Stop(): Stop() recieved !ack");
   }
@@ -54,7 +54,7 @@ void RepeatingDoor::RepeatDoorOpenCommand()
 	{
 		std::cout << "RepeatingDoor::RepeatDoorOpenCommand(): loop!" << std::endl; // Note: debug
 
-		if(communicator->Transmit("SetDoor" + SideAsString() + ":open;") != "ack;")
+		if(communicator->Transmit("SetDoor" + SideAsString() + ":open;") != "ack;\n")
   	{
 			throw std::logic_error("RepeatingDoor::RepeatDoorOpenCommand(): RepeatDoorOpenCommand() recieved !ack");
   	}
@@ -68,7 +68,7 @@ void RepeatingDoor::RepeatDoorCloseCommand()
 	continuePushingDoorCommand = true;
 	while(continuePushingDoorCommand)
 	{
-		if(communicator->Transmit("SetDoor" + SideAsString() + ":close;") != "ack;")
+		if(communicator->Transmit("SetDoor" + SideAsString() + ":close;") != "ack;\n")
   	{
     	throw std::logic_error("RepeatingDoor::RepeatDoorCloseCommand(): RepeatDoorCloseCommand() recieved !ack");
   	}

@@ -34,7 +34,6 @@ void Communicator::Send(std::string message)
         throw std::logic_error("Communicator::Send(): message.Lenght != 0");
     }
 
-    message = message + ";";
     std::cout << "Sending: " << message << std::endl;
     send(sock, message.c_str(), size, 0);
 }
@@ -50,7 +49,7 @@ std::string Communicator::Recieve()
 
     std::string rec = std::string(remove_nl(buffer));
     rec = rec.substr(0, rec.find(";") + 1);
-    std::cout << "Recieved: rec = " << rec << std::endl;
+    std::cout << "Recieved: " << rec << std::endl;
     //std::cout << "Recieved: " << std::string(remove_nl(buffer)) << std::endl;
     //return std::string(remove_nl(buffer));
     return rec;

@@ -16,7 +16,7 @@ Valve::Valve(EWaterLockSides side, EValves valve, Communicator* communicator)
 
 void Valve::Open()
 {
-	if(communicator->Transmit("SetDoor" + SideAsString() + "Valve" + ValveAsString() + ":open") != "ack;")
+	if(communicator->Transmit("SetDoor" + SideAsString() + "Valve" + ValveAsString() + ":open;\n") != "ack;")
   {
 		throw std::logic_error("Valve::Open(): Open() recieved !ack");
   }
@@ -24,7 +24,7 @@ void Valve::Open()
 
 void Valve::Close()
 {
-	if(communicator->Transmit("SetDoor" + SideAsString() + "Valve" + ValveAsString() + ":close") != "ack;")
+	if(communicator->Transmit("SetDoor" + SideAsString() + "Valve" + ValveAsString() + ":close;\n") != "ack;")
   {
 		std::cout << "!ack" << std::endl;
 		throw std::logic_error("Valve::Close(): Open() recieved !ack");
