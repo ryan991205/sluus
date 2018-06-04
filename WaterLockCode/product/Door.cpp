@@ -118,7 +118,7 @@ void Door::KillPollThread()
 {
 	if(pollThread != nullptr)
 	{
-		std::cout << "Door::KillPollThread(): Loop!" << std::endl; // Note: debug
+		std::cout << "Door::KillPollThread()" << std::endl; // Note: debug
 
 		if(pollThread->joinable())
 		{
