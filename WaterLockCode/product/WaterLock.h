@@ -95,6 +95,7 @@ class WaterLock
 		void Exit_LoweringWaterState();
 		///// Sate Machine Functions /////
 
+		void SetOpenDoor();
 		void StopDoors();
 		void CloseLowWaterDoorValves();
 		void CloseHighWaterDoorValves();
