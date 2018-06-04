@@ -2,7 +2,7 @@
 
 #include <iostream> // Note: debug
 
-RepeatingDoor::RepeatingDoor(EWaterLockSides side, EventGenerator* eventGenerator, Communicator* const TCP_Con) : Door(side, eventGenerator, TCP_Con)
+RepeatingDoor::RepeatingDoor(EWaterLockSides side, IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con) : Door(side, eventGenerator, TCP_Con)
 {
 	continuePushingDoorCommand = false;
 	pushThread = nullptr;

@@ -6,6 +6,7 @@
 #include "Door.h"
 #include "RepeatingDoor.h"
 #include "LockableDoor.h"
+#include "IUserInputEventGenerator.h"
 #include "EventGenerator.h"
 #include "WaterSensor.h"
 #include "Communicator.h"
@@ -20,7 +21,7 @@ class WaterLock
 		WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, EDoorTypes highWaterDoor, int port);
 		~WaterLock();
 
-		EventGenerator* GetEventGenerator();
+		IUserInputEventGenerator* GetEventGenerator();
 
 	private:
 		Door* openDoor;

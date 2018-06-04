@@ -1,9 +1,12 @@
 #include "Door.h"
 
+#include "Valve.h"
+#include "TrafficLight.h"
+
 #include <iostream> // Note: debug
 
 
-Door::Door(EWaterLockSides side, EventGenerator* eventGenerator, Communicator* const TCP_Con)
+Door::Door(EWaterLockSides side, IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con)
 {
 	if(eventGenerator == nullptr)
 	{
@@ -39,25 +42,25 @@ Door::~Door()
 	delete outsideLight;
 }
 
-TrafficLight* Door::GetTrafficLight(ETrafficLights trafficLight)
+ITrafficLight* Door::GetTrafficLight(ETrafficLights trafficLight)
 {
 	switch(trafficLight)
 	{
 		case Inside  : return insideLight;	break;
 		case Outside : return outsideLight; break;
-		default      : break; // Note: do nothing
+		default      : break;
 	}
 	return nullptr;
 }
 
-Valve* Door::GetValve(EValves valve)
+IValve* Door::GetValve(EValves valve)
 {
 	switch(valve)
 	{
 		case Lower  : return lowerValve;  break;
 		case Middle : return middleValve; break;
 		case Upper  : return upperValve;  break;
-		default     : break; // Note: do nothing
+		default     : break;
 	}
 	return nullptr;
 }

@@ -3,7 +3,6 @@
 #include <stdexcept>
 
 #include "EValves.h"
-//#include "ETrafficLightColors.h"
 
 #include <iostream> // Note: debug
 
@@ -58,7 +57,7 @@ WaterLock::~WaterLock()
 	delete communicator;
 }
 
-EventGenerator* WaterLock::GetEventGenerator()
+IUserInputEventGenerator* WaterLock::GetEventGenerator()
 {
 	return &eventGenerator;
 }

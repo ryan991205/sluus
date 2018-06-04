@@ -5,6 +5,7 @@
 
 #include "IWaterSensor.h"
 #include "EventGenerator.h"
+#include "IWaterLockEventGenerator.h"
 #include "Communicator.h"
 #include "EWaterLevels.h"
 
@@ -12,7 +13,7 @@
 class WaterSensor : public IWaterSensor
 {
 	public:
-		WaterSensor(EventGenerator* eventGenerator, Communicator* const TCP_Con);
+		WaterSensor(IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con);
 		~WaterSensor();
 
 		EWaterLevels GetWaterLevel();
@@ -21,7 +22,7 @@ class WaterSensor : public IWaterSensor
 		void KillPollThread();
 
 	private:
-		EventGenerator* eventGenerator;
+		IWaterLockEventGenerator* eventGenerator;
 		Communicator* communicator;
 		std::thread* pollThread;
 		bool continueWaterLevelPolling;

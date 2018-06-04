@@ -3,25 +3,26 @@
 
 #include <thread>
 
-#include "Valve.h"
-#include "TrafficLight.h"
-#include "EventGenerator.h"
-#include "interfaces/IDoor.h"
+#include "IValve.h"
+#include "ITrafficLight.h"
+#include "IWaterLockEventGenerator.h"
+#include "IDoor.h"
+#include "Communicator.h"
 #include "EWaterLockSides.h"
 #include "EValves.h"
+#include "ETrafficLights.h"
 #include "EDoorStates.h"
-#include "Communicator.h"
 
 
 class Door : public IDoor
 {
 	private:
-		Valve* lowerValve;
-		Valve* middleValve;
-		Valve* upperValve;
-		TrafficLight* insideLight;
-		TrafficLight* outsideLight;
-		EventGenerator* eventGenerator;
+		IValve* lowerValve;
+		IValve* middleValve;
+		IValve* upperValve;
+		ITrafficLight* insideLight;
+		ITrafficLight* outsideLight;
+		IWaterLockEventGenerator* eventGenerator;
 
 		std::thread* pollThread;
 		bool continueDoorStatePolling;
@@ -29,15 +30,14 @@ class Door : public IDoor
 		void PollDoorState();
 
 	public:
-		Door(EWaterLockSides side, EventGenerator* eventGenerator, Communicator* const TCP_Con);
+		Door(EWaterLockSides side, IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con);
 		~Door();
 
-		TrafficLight* GetTrafficLight(ETrafficLights trafficLight);
+		ITrafficLight* GetTrafficLight(ETrafficLights trafficLight);
+		IValve* GetValve(EValves valve);
 
 		void StartPollingDoorSateOnPollThread();
 		void KillPollThread();
-
-		Valve* GetValve(EValves valve);
 
 		void Open();
 

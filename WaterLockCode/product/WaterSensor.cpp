@@ -5,7 +5,7 @@
 #include <iostream>
 
 
-WaterSensor::WaterSensor(EventGenerator* eventGenerator, Communicator* const TCP_Con)
+WaterSensor::WaterSensor(IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con)
 {
     //std::cout << "WaterSensor::WaterSensor(): Hello!" << std::endl;
 
