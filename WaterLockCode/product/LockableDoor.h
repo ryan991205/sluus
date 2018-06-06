@@ -10,7 +10,9 @@
 class LockableDoor : public Door, public ILockable
 {
 	public:
-		LockableDoor(EWaterLockSides side,  IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con);
+		LockableDoor(EWaterLockSides side, IWaterLockEventGenerator& _eventGenerator, Communicator& TCP_Con,
+				 				 IValve& _lowerValve, IValve& _middleValve, IValve& _upperValve, ITrafficLight& _insideLight,
+				 				 ITrafficLight& _outsideLight);
 		~LockableDoor();
 
 		void Open() override;

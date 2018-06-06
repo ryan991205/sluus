@@ -10,7 +10,7 @@
 class Valve : public IValve
 {
 	public:
-		Valve(EWaterLockSides side, EValves valve, Communicator* communicator);
+		Valve(EWaterLockSides side, EValves valve, Communicator& TCP_Con);
 
 		void Open();
 		void Close();
@@ -18,13 +18,13 @@ class Valve : public IValve
 	private:
 		EWaterLockSides side;
 		EValves valve;
-		Communicator *communicator;
+		Communicator& communicator;
 
 		std::string SideAsString();
 		std::string ValveAsString();
 
 		// private copy constructor and assignment operator to prevent making copies
-    Valve(const Valve&) { /* do nothing */ };
+    Valve(const Valve& arg) : communicator(arg.communicator) { /* do nothing */ };
     Valve& operator= (const Valve&) { return *this; };
 };
 

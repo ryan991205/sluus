@@ -2,21 +2,17 @@
 
 #include <iostream> // Note: debug
 
-Valve::Valve(EWaterLockSides side, EValves valve, Communicator* communicator)
-{
-	if(communicator== nullptr)
-	{
-		throw std::logic_error("Valve::Vale(): communicator == nullptr");
-	}
 
+Valve::Valve(EWaterLockSides side, EValves valve, Communicator& TCP_Con)
+	: communicator(TCP_Con)
+{
 	this->side = side;
 	this->valve = valve;
-	this->communicator = communicator;
 }
 
 void Valve::Open()
 {
-	if(communicator->Transmit("SetDoor" + SideAsString() + "Valve" + ValveAsString() + ":open;\n") != "ack;")
+	if(communicator.Transmit("SetDoor" + SideAsString() + "Valve" + ValveAsString() + ":open;\n") != "ack;")
   {
 		throw std::logic_error("Valve::Open(): Open() recieved !ack");
   }
@@ -24,7 +20,7 @@ void Valve::Open()
 
 void Valve::Close()
 {
-	if(communicator->Transmit("SetDoor" + SideAsString() + "Valve" + ValveAsString() + ":close;\n") != "ack;")
+	if(communicator.Transmit("SetDoor" + SideAsString() + "Valve" + ValveAsString() + ":close;\n") != "ack;")
   {
 		std::cout << "!ack" << std::endl;
 		throw std::logic_error("Valve::Close(): Open() recieved !ack");

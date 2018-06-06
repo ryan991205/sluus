@@ -4,6 +4,15 @@
 
 #include <thread>
 
+#include "Valve.h"
+#include "TrafficLight.h"
+#include "Door.h"
+#include "RepeatingDoor.h"
+#include "LockableDoor.h"
+#include "WaterSensor.h"
+#include "EventGenerator.h"
+#include "Communicator.h"
+
 #include "WaterLock.h"
 #include "EWaterLockSides.h"
 
@@ -45,7 +54,27 @@ int main()
   std::cout << "\nProgram Start\n" << std::endl;
 
   std::cout << "Connecting to hardware... " << std::flush;
-  WaterLock waterLock1_Normal(Normal, Left, Normal, 5555);
+
+  Communicator w1_TCP_Con(5555);
+  EventGenerator w1_EventGenerator();
+  WaterSensor w1_WaterSensor(&w1_EventGenerator, w1_TCP_Con);
+
+  Valve w1_Low_LowerValve(Left, Lower, w1_TCP_Con);
+  Valve w1_Low_MiddleValve(Left, Middle, w1_TCP_Con);
+  Valve w1_Low_UpperValve(Left, Upper, w1_TCP_Con);
+  TrafficLight w1_Low_InsideLight(Left, Inside, w1_TCP_Con);
+  TrafficLight w1_Low_OutsideLight(Left, Outside, w1_TCP_Con);
+  Door w1_LowWaterDoor(Left, w1_EventGenerator, w1_TCP_Con, w1_Low_LowerValve, w1_Low_MiddleValve, w1_Low_UpperValve, w1_Low_InsideLight, w1_Low_OutsideLight);
+
+  Valve w1_High_LowerValve(Right, Lower, w1_TCP_Con);
+  Valve w1_High_MiddleValve(Right, Middle, w1_TCP_Con);
+  Valve w1_High_UpperValve(Right, Upper, w1_TCP_Con);
+  TrafficLight w1_High_InsideLight(Right, Inside, w1_TCP_Con);
+  TrafficLight w1_High_OutsideLight(Right, Outside, w1_TCP_Con);
+  Door w1_HighWaterDoor(Right, w1_EventGenerator, w1_TCP_Con, w1_High_LowerValve, w1_High_MiddleValve, w1_High_UpperValve, w1_High_InsideLight, w1_High_OutsideLight);
+
+  WaterLock waterLock1_Normal(w1_LowWaterDoor, w1_HighWaterDoor);
+
   //WaterLock waterLock2_Normal(Normal, Left, Normal, 5556);
   //WaterLock waterLock3_LockableDoor(Lockable, Left, Lockable, 5557);
   //WaterLock waterLock4_RepeatingDoor(Repeating, Left, Repeating, 5558);

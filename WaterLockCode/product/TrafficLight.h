@@ -12,7 +12,7 @@
 class TrafficLight : public ITrafficLight
 {
 	public:
-		TrafficLight(EWaterLockSides side, ETrafficLights light, Communicator* const TCP_Con);
+		TrafficLight(EWaterLockSides side, ETrafficLights light, Communicator& TCP_Con);
 
 		void Green();
 
@@ -23,12 +23,12 @@ class TrafficLight : public ITrafficLight
 	private:
 		EWaterLockSides side;
 		ETrafficLights light;
-		Communicator* communicator;
+		Communicator& communicator;
 
 		std::string GetLightNumber();
 
 		// private copy constructor and assignment operator to prevent making copies
-    TrafficLight(const TrafficLight&) { /* do nothing */ };
+    TrafficLight(const TrafficLight& arg) : communicator(arg.communicator) { /* do nothing */ };
     TrafficLight& operator= (const TrafficLight&) { return *this; };
 };
 

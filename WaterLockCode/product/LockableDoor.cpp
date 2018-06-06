@@ -5,9 +5,12 @@
 #include <iostream> // Note: debug
 
 
-LockableDoor::LockableDoor(EWaterLockSides side,  IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con) : Door(side, eventGenerator, TCP_Con)
+LockableDoor::LockableDoor(EWaterLockSides side, IWaterLockEventGenerator& _eventGenerator, Communicator& TCP_Con,
+				 	 								 IValve& _lowerValve, IValve& _middleValve, IValve& _upperValve, ITrafficLight& _insideLight,
+				 	 								 ITrafficLight& _outsideLight)
+	: Door(side, eventGenerator, TCP_Con, lowerValve, middleValve, upperValve, insideLight, outsideLight)
 {
-	lock = new DoorLock(side,TCP_Con);
+	lock = new DoorLock(side, *TCP_Con);
 }
 
 LockableDoor::~LockableDoor()
@@ -19,7 +22,7 @@ void LockableDoor::Open()
 {
 	lock->Unlock();
 
-  if(communicator->Transmit("SetDoor" + SideAsString() + ":open;\n") != "ack;")
+  if(communicator.Transmit("SetDoor" + SideAsString() + ":open;\n") != "ack;")
   {
 		throw std::logic_error("LockableDoor::Open(): Open() recieved !ack");
   }
@@ -27,7 +30,7 @@ void LockableDoor::Open()
 
 void LockableDoor::Stop()
 {
-  if(communicator->Transmit("SetDoor" + SideAsString() + ":stop;\n") != "ack;")
+  if(communicator.Transmit("SetDoor" + SideAsString() + ":stop;\n") != "ack;")
   {
     throw std::logic_error("LockableDoor::Stop(): Stop() recieved !ack");
   }

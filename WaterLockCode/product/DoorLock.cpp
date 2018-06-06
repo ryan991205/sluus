@@ -1,20 +1,15 @@
 #include "DoorLock.h"
 
 
-DoorLock::DoorLock(EWaterLockSides side, Communicator* const TCP_Con)
+DoorLock::DoorLock(EWaterLockSides side, Communicator& TCP_Con)
+    : communicator(TCP_Con)
 {
-    if(TCP_Con == nullptr)
-    {
-        throw std::logic_error("DoorLock::DoorLock(): TCP_Con == nullptr");
-    }
-
-	communicator = TCP_Con;
 	this->side = side;
 }
 
 void DoorLock::Lock()
 {
-    if(communicator->Transmit("SetDoorLock" + SideAsString() + ":on;\n") != "ack;")
+    if(communicator.Transmit("SetDoorLock" + SideAsString() + ":on;\n") != "ack;")
     {
         throw std::logic_error("DoorLock::Lock(): Lock() recieved !ack");
     }
@@ -22,7 +17,7 @@ void DoorLock::Lock()
 
 void DoorLock::Unlock()
 {
-    if(communicator->Transmit("SetDoorLock" + SideAsString() + ":off;\n") != "ack;")
+    if(communicator.Transmit("SetDoorLock" + SideAsString() + ":off;\n") != "ack;")
     {
         throw std::logic_error("DoorLock::Unlock(): Unlock() recieved !ack");
     }
@@ -30,7 +25,7 @@ void DoorLock::Unlock()
 
 ELockStates DoorLock::GetState()
 {
-    std::string answer = communicator->Transmit("GetDoorLockState" +  SideAsString() +  ";\0");
+    std::string answer = communicator.Transmit("GetDoorLockState" +  SideAsString() +  ";\0");
 
     ELockStates lockState;
 
