@@ -1,6 +1,6 @@
 #include "Valve.h"
 
-#include <iostream>
+#include <iostream> // Note: debug
 
 Valve::Valve(EWaterLockSides side, EValves valve, Communicator* communicator)
 {

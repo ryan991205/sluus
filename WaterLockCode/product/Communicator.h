@@ -25,6 +25,10 @@ private:
     std::string Recieve();
 
     bool ValidMessage(const char message[]);
+
+    // private copy constructor and assignment operator to prevent making copies
+    Communicator(const Communicator&) { /* do nothing */ };
+    Communicator& operator= (const Communicator&) { return *this; };
 };
 
 #endif

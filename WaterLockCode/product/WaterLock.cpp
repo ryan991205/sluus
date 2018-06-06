@@ -81,7 +81,7 @@ void WaterLock::RaiseWater(EWaterLevels waterLevel)
 			highWaterDoor->GetValve(Middle)->Open();
 			highWaterDoor->GetValve(Upper)->Open();
 			break;
-		default               : throw std::logic_error("WaterLock::RaiseWater(): waterLevel == unsuported water level"); break;
+		default : throw std::logic_error("WaterLock::RaiseWater(): waterLevel == unsuported water level"); break;
 	}
 }
 

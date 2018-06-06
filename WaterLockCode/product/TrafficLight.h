@@ -4,20 +4,13 @@
 #include <string>
 
 #include "ITrafficLight.h"
+#include "Communicator.h"
 #include "EWaterLockSides.h"
 #include "ETrafficLights.h"
 //#include "ETrafficLightColors.h"
-#include "Communicator.h"
 
 class TrafficLight : public ITrafficLight
 {
-	private:
-		EWaterLockSides side;
-		ETrafficLights light;
-		Communicator* communicator;
-
-		std::string GetLightNumber();
-
 	public:
 		TrafficLight(EWaterLockSides side, ETrafficLights light, Communicator* const TCP_Con);
 
@@ -26,6 +19,13 @@ class TrafficLight : public ITrafficLight
 		void Red();
 
 		//ETrafficLightColors GetColor();
+
+	private:
+		EWaterLockSides side;
+		ETrafficLights light;
+		Communicator* communicator;
+
+		std::string GetLightNumber();
 
 		// private copy constructor and assignment operator to prevent making copies
     TrafficLight(const TrafficLight&) { /* do nothing */ };

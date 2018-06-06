@@ -2,13 +2,11 @@
 
 #include <string>
 
-#include <iostream>
+#include <iostream> // Note: debug
 
 
 WaterSensor::WaterSensor(IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con)
 {
-    //std::cout << "WaterSensor::WaterSensor(): Hello!" << std::endl;
-
     if(eventGenerator == nullptr)
     {
         throw std::logic_error("WaterSensor::WaterSensor(): eventGenerator == nullptr");

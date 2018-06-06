@@ -1,12 +1,14 @@
+#include "Communicator.h"
+
 #include <string.h>     // for strlen()
 #include <sys/socket.h> // for send() and recv()
 #include <unistd.h>     // for sleep(), close()
 
-#include "comLibs/Auxiliary.h"
-#include "comLibs/CreateTCPClientSocket.h"
-#include "Communicator.h"
+#include "Auxiliary.h"
+#include "CreateTCPClientSocket.h"
 
-#include <iostream>
+#include <iostream> //Note debug
+
 
 Communicator::Communicator(int port, const char* serverIP)
 {

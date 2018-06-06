@@ -2,7 +2,6 @@
 #define LOCKABLEDOOR_H
 
 #include "Door.h"
-//#include "DoorLock.h"
 #include "ILockable.h"
 #include "ILock.h"
 #include "Communicator.h"
@@ -13,8 +12,6 @@ class LockableDoor : public Door, public ILockable
 	public:
 		LockableDoor(EWaterLockSides side,  IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con);
 		~LockableDoor();
-
-		const ILock* GetLock() const;
 
 		void Open() override;
 		void Stop() override;

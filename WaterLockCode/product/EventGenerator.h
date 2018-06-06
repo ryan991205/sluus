@@ -2,6 +2,7 @@
 #define EVENTGENERATOR_H
 
 #include <vector>
+#include <mutex>
 
 #include "IUserInputEventGenerator.h"
 #include "IWaterLockEventGenerator.h"
@@ -34,6 +35,8 @@ class EventGenerator : public IUserInputEventGenerator, public IWaterLockEventGe
 		void Emergency();
 
 	private:
+		std::mutex mutex;
+
 		// private copy constructor and assignment operator to prevent making copies
     EventGenerator(const EventGenerator&) { /* do nothing */ };
     EventGenerator& operator= (const EventGenerator&) { return *this; };

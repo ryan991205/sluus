@@ -16,28 +16,12 @@
 
 class Door : public IDoor
 {
-	private:
-		IValve* lowerValve;
-		IValve* middleValve;
-		IValve* upperValve;
-		ITrafficLight* insideLight;
-		ITrafficLight* outsideLight;
-		IWaterLockEventGenerator* eventGenerator;
-
-		std::thread* pollThread;
-		bool continueDoorStatePolling;
-
-		void PollDoorState();
-
 	public:
 		Door(EWaterLockSides side, IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con);
 		~Door();
 
 		ITrafficLight* GetTrafficLight(ETrafficLights trafficLight);
 		IValve* GetValve(EValves valve);
-
-		void StartPollingDoorSateOnPollThread();
-		void KillPollThread();
 
 		void Open();
 
@@ -47,15 +31,30 @@ class Door : public IDoor
 
 		EDoorStates GetState();
 
+		void StartPollingDoorSateOnPollThread();
+		void KillPollThread();
+
+	protected:
+		Communicator* communicator;
+		EWaterLockSides side;
+
+		std::string SideAsString();
+
+	private:
+		IValve* lowerValve;
+		IValve* middleValve;
+		IValve* upperValve;
+		ITrafficLight* insideLight;
+		ITrafficLight* outsideLight;
+		IWaterLockEventGenerator* eventGenerator;
+		std::thread* pollThread;
+		bool continueDoorStatePolling;
+
+		void PollDoorState();
+
 		// private copy constructor and assignment operator to prevent making copies
     Door(const Door&) { /* do nothing */ };
-    Door& operator= (const Door&) { return *this; };
-
-		protected:
-			Communicator* communicator;
-			EWaterLockSides side;
-
-			std::string SideAsString();
+  	Door& operator= (const Door&) { return *this; };
 	};
 
 #endif

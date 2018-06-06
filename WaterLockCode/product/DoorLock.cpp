@@ -1,5 +1,6 @@
 #include "DoorLock.h"
 
+
 DoorLock::DoorLock(EWaterLockSides side, Communicator* const TCP_Con)
 {
     if(TCP_Con == nullptr)

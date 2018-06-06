@@ -2,6 +2,7 @@
 
 #include <iostream> // Note: debug
 
+
 RepeatingDoor::RepeatingDoor(EWaterLockSides side, IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con) : Door(side, eventGenerator, TCP_Con)
 {
 	continuePushingDoorCommand = false;
@@ -52,7 +53,7 @@ void RepeatingDoor::RepeatDoorOpenCommand()
 	continuePushingDoorCommand = true;
 	while(continuePushingDoorCommand)
 	{
-		std::cout << "RepeatingDoor::RepeatDoorOpenCommand(): loop!" << std::endl; // Note: debug
+		//std::cout << "RepeatingDoor::RepeatDoorOpenCommand(): loop!" << std::endl; // Note: debug
 
 		if(communicator->Transmit("SetDoor" + SideAsString() + ":open;\n") != "ack;")
   	{

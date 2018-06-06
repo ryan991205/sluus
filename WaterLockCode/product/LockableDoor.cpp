@@ -15,11 +15,6 @@ LockableDoor::~LockableDoor()
 	delete lock;
 }
 
-const ILock* LockableDoor::GetLock() const
-{
-	return lock;
-}
-
 void LockableDoor::Open()
 {
 	lock->Unlock();

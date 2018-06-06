@@ -4,7 +4,6 @@
 #include <thread>
 
 #include "IWaterSensor.h"
-#include "EventGenerator.h"
 #include "IWaterLockEventGenerator.h"
 #include "Communicator.h"
 #include "EWaterLevels.h"

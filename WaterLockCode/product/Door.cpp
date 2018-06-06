@@ -87,7 +87,24 @@ void Door::Stop()
   {
     throw std::logic_error("Door::Stop(): Stop() recieved !ack");
   }
+}
 
+EDoorStates Door::GetState()
+{
+  std::string answer = communicator->Transmit("GetDoor" +  SideAsString() + ";\0");
+
+	EDoorStates doorState;
+
+  	   if(answer.compare("doorLocked;" ) == 0) doorState = DoorLocked;
+  else if(answer.compare("doorClosed;" ) == 0) doorState = DoorClosed;
+  else if(answer.compare("doorOpen;"   ) == 0) doorState = DoorOpen;
+  else if(answer.compare("doorClosing;") == 0) doorState = DoorClosing;
+  else if(answer.compare("doorOpening;") == 0) doorState = DoorOpening;
+  else if(answer.compare("doorStopped;") == 0) doorState = DoorStopped;
+  else if(answer.compare("motorDamage;") == 0) doorState = MotorDamage;
+  else throw std::logic_error("Door::GetState(): door state == unsuported state");
+
+	return  doorState;
 }
 
 void Door::StartPollingDoorSateOnPollThread()
@@ -132,24 +149,6 @@ void Door::KillPollThread()
 		delete pollThread;
 		pollThread = nullptr;
 	}
-}
-
-EDoorStates Door::GetState()
-{
-  std::string answer = communicator->Transmit("GetDoor" +  SideAsString() + ";\0");
-
-	EDoorStates doorState;
-
-  	   if(answer.compare("doorLocked;" ) == 0) doorState = DoorLocked;
-  else if(answer.compare("doorClosed;" ) == 0) doorState = DoorClosed;
-  else if(answer.compare("doorOpen;"   ) == 0) doorState = DoorOpen;
-  else if(answer.compare("doorClosing;") == 0) doorState = DoorClosing;
-  else if(answer.compare("doorOpening;") == 0) doorState = DoorOpening;
-  else if(answer.compare("doorStopped;") == 0) doorState = DoorStopped;
-  else if(answer.compare("motorDamage;") == 0) doorState = MotorDamage;
-  else throw std::logic_error("Door::GetState(): door state == unsuported state");
-
-	return  doorState;
 }
 
 std::string Door::SideAsString()
