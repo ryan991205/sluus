@@ -1,0 +1,30 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "browse": {
+                "path": [
+                  "${workspaceFolder}",
+                  "${workspaceFolder}/product",
+                  "${workspaceFolder}/product/comLibs",
+                  "${workspaceFolder}/product/enums",
+                  "${workspaceFolder}/product/interfaces"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+              "${workspaceFolder}",
+              "${workspaceFolder}/product",
+              "${workspaceFolder}/product/comLibs",
+              "${workspaceFolder}/product/enums",
+              "${workspaceFolder}/product/interfaces"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}

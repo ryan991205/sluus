@@ -12,24 +12,24 @@
 class WaterSensor : public IWaterSensor
 {
 	public:
-		WaterSensor(IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con);
+		WaterSensor(IWaterLockEventGenerator& _eventGenerator, Communicator& TCP_Con);
 		~WaterSensor();
 
 		EWaterLevels GetWaterLevel();
 
-		void StartPollingWaterLevelOnPollThread();
-		void KillPollThread();
+		//void StartPollingWaterLevelOnPollThread();
+		//void KillPollThread();
 
 	private:
-		IWaterLockEventGenerator* eventGenerator;
-		Communicator* communicator;
-		std::thread* pollThread;
-		bool continueWaterLevelPolling;
+		IWaterLockEventGenerator& eventGenerator;
+		Communicator& communicator;
+		//std::thread* pollThread;
+		//bool continueWaterLevelPolling;
 
-		void PollWaterLevel();
+		//void PollWaterLevel();
 
 		// private copy constructor and assignment operator to prevent making copies
-  	WaterSensor(const WaterSensor&) { /* do nothing */ };
+  	WaterSensor(const WaterSensor& arg) : eventGenerator(arg.eventGenerator), communicator(arg.communicator) { /* do nothing */ };
     WaterSensor& operator= (const WaterSensor&) { return *this; };
 };
 

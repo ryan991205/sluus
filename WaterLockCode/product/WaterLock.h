@@ -18,20 +18,17 @@
 class WaterLock
 {
 	public:
-		WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, EDoorTypes highWaterDoor, int port);
+		WaterLock(Door& lowWaterDoor, Door& highWaterDoor, IWaterSensor& waterSensor, EventGenerator& eventGenerator);
 		~WaterLock();
-
-		IUserInputEventGenerator* GetEventGenerator();
 
 	private:
 		Door* openDoor;
-		Door* lowWaterDoor;
-		Door* highWaterDoor;
-		WaterSensor* waterSensor;
-		Communicator* communicator;
+		Door& lowWaterDoor;
+		Door& highWaterDoor;
+		IWaterSensor& waterSensor;
 
 		///// Sate Machine Members /////
-		EventGenerator eventGenerator;
+		EventGenerator& eventGenerator;
 		EStates state;
 		ENormalOperationSubStates normalOperationSubState;
 		EOneDoorOpenSubStates oneDoorOpenSubState;
@@ -39,11 +36,18 @@ class WaterLock
 		///// Sate Machine Members /////
 
 		bool continueEventPolling;
-		std::thread* pollThread;
+		std::thread* eventPollThread;
 
-		void StartPollingEventsOnPollThread();
+		void StartPollingEventsOnEventPollThread();
 		void PollEvents();
-		void KillPollThread();
+		void KillEventPollThread();
+
+		std::thread* waterLevelPollThread;
+		bool continueWaterLevelPolling;
+
+		void StartPollingWaterLevelOnWaterLevelPollThread();
+		void PollWaterLevel();
+		void KillWaterLevelPollThread();
 
 		void RaiseWater(EWaterLevels waterLevel);
 		void LowerWater();
@@ -104,7 +108,12 @@ class WaterLock
 		void TrafficLightsRed();
 
 		// private copy constructor and assignment operator to prevent making copies
-  	WaterLock(const WaterLock&) { /* do nothing */ };
+  	WaterLock(const WaterLock& arg)
+		: lowWaterDoor(arg.lowWaterDoor)
+		, highWaterDoor(arg.highWaterDoor)
+		, waterSensor(arg.waterSensor)
+		, eventGenerator(arg.eventGenerator)
+		  { /* do nothing */ };
     WaterLock& operator= (const WaterLock&) { return *this; };
 };
 

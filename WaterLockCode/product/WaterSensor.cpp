@@ -5,33 +5,21 @@
 #include <iostream> // Note: debug
 
 
-WaterSensor::WaterSensor(IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con)
+WaterSensor::WaterSensor(IWaterLockEventGenerator& _eventGenerator, Communicator& TCP_Con)
+    : eventGenerator(_eventGenerator), communicator(TCP_Con)
 {
-    if(eventGenerator == nullptr)
-    {
-        throw std::logic_error("WaterSensor::WaterSensor(): eventGenerator == nullptr");
-    }
-
-    if(TCP_Con == nullptr)
-    {
-        throw std::logic_error("WaterSensor::WaterSensor(): TCP_Con == nullptr");
-    }
-
-    this->eventGenerator = eventGenerator;
-	communicator = TCP_Con;
-
-    continueWaterLevelPolling = false;
-    pollThread = nullptr;
+    //continueWaterLevelPolling = false;
+    //pollThread = nullptr;
 }
 
 WaterSensor::~WaterSensor()
 {
-    KillPollThread();
+    //KillPollThread();
 }
 
 EWaterLevels WaterSensor::GetWaterLevel()
 {
-	std::string answer = communicator->Transmit("GetWaterLevel;\n");
+	std::string answer = communicator.Transmit("GetWaterLevel;\n");
     //std::cout << "\nanswer: " << answer << std::endl;
 
     EWaterLevels waterLevel = Low;
@@ -50,6 +38,7 @@ EWaterLevels WaterSensor::GetWaterLevel()
     return waterLevel;
 }
 
+/*
 void WaterSensor::StartPollingWaterLevelOnPollThread()
 {
     KillPollThread();
@@ -61,7 +50,7 @@ void WaterSensor::PollWaterLevel()
 {
     EWaterLevels currentWaterLevel = GetWaterLevel();
     EWaterLevels newWaterLevel = currentWaterLevel;
-    eventGenerator->WaterLevelChanged(); // Note: to make sure we didn't miss a water level state change.
+    eventGenerator.WaterLevelChanged(); // Note: to make sure we didn't miss a water level state change.
 
     continueWaterLevelPolling = true;
     while(continueWaterLevelPolling)
@@ -72,7 +61,7 @@ void WaterSensor::PollWaterLevel()
         if(currentWaterLevel != newWaterLevel)
         {
             currentWaterLevel = newWaterLevel;
-            eventGenerator->WaterLevelChanged();
+            eventGenerator.WaterLevelChanged();
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -93,3 +82,4 @@ void WaterSensor::KillPollThread()
         pollThread = nullptr;
     }
 }
+*/

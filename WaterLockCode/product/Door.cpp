@@ -6,27 +6,18 @@
 #include <iostream> // Note: debug
 
 
-Door::Door(EWaterLockSides side, IWaterLockEventGenerator* eventGenerator, Communicator* const TCP_Con)
+Door::Door(EWaterLockSides side, Communicator& TCP_Con, IWaterLockEventGenerator& _eventGenerator,
+				 	 IValve& _lowerValve, IValve& _middleValve, IValve& _upperValve, ITrafficLight& _insideLight,
+				 	 ITrafficLight& _outsideLight)
+	: communicator(TCP_Con)
+	,	eventGenerator(_eventGenerator)
+	, lowerValve(_lowerValve)
+	, middleValve(_middleValve)
+	, upperValve(_upperValve)
+	, insideLight(_insideLight)
+	, outsideLight(_outsideLight)
 {
-	if(eventGenerator == nullptr)
-	{
-		throw std::logic_error("Door::Door(): eventGenerator == nullptr");
-	}
-
-	if(TCP_Con == nullptr)
-	{
-		throw std::logic_error("Door::Door(): TCP_Con == nullptr");
-	}
-
-	this->eventGenerator = eventGenerator;
 	this->side = side;
-	communicator = TCP_Con;
-
-	lowerValve = new Valve(side, Lower, communicator);
-	middleValve = new Valve(side, Middle, communicator);
-	upperValve = new Valve(side, Upper, communicator);
-	insideLight = new TrafficLight(side, Inside, TCP_Con);
-	outsideLight = new TrafficLight(side, Outside, TCP_Con);
 
 	continueDoorStatePolling = false;
 	pollThread = nullptr;
@@ -35,19 +26,14 @@ Door::Door(EWaterLockSides side, IWaterLockEventGenerator* eventGenerator, Commu
 Door::~Door()
 {
 	KillPollThread();
-	delete lowerValve;
-	delete middleValve;
-	delete upperValve;
-	delete insideLight;
-	delete outsideLight;
 }
 
 ITrafficLight* Door::GetTrafficLight(ETrafficLights trafficLight)
 {
 	switch(trafficLight)
 	{
-		case Inside  : return insideLight;	break;
-		case Outside : return outsideLight; break;
+		case Inside  : return &insideLight;	break;
+		case Outside : return &outsideLight; break;
 		default      : break;
 	}
 	return nullptr;
@@ -57,9 +43,9 @@ IValve* Door::GetValve(EValves valve)
 {
 	switch(valve)
 	{
-		case Lower  : return lowerValve;  break;
-		case Middle : return middleValve; break;
-		case Upper  : return upperValve;  break;
+		case Lower  : return &lowerValve;  break;
+		case Middle : return &middleValve; break;
+		case Upper  : return &upperValve;  break;
 		default     : break;
 	}
 	return nullptr;
@@ -67,7 +53,7 @@ IValve* Door::GetValve(EValves valve)
 
 void Door::Open()
 {
-  if(communicator->Transmit("SetDoor" + SideAsString() + ":open;\n") != "ack;")
+  if(communicator.Transmit("SetDoor" + SideAsString() + ":open;\n") != "ack;")
   {
 		throw std::logic_error("Door::Open(): Open() recieved !ack");
   }
@@ -75,7 +61,7 @@ void Door::Open()
 
 void Door::Close()
 {
-  if(communicator->Transmit("SetDoor" + SideAsString() + ":close;\n") != "ack;")
+  if(communicator.Transmit("SetDoor" + SideAsString() + ":close;\n") != "ack;")
   {
     throw std::logic_error("Door::Close(): Close() recieved !ack");
   }
@@ -83,7 +69,7 @@ void Door::Close()
 
 void Door::Stop()
 {
-  if(communicator->Transmit("SetDoor" + SideAsString() + ":stop;\n") != "ack;")
+  if(communicator.Transmit("SetDoor" + SideAsString() + ":stop;\n") != "ack;")
   {
     throw std::logic_error("Door::Stop(): Stop() recieved !ack");
   }
@@ -91,7 +77,7 @@ void Door::Stop()
 
 EDoorStates Door::GetState()
 {
-  std::string answer = communicator->Transmit("GetDoor" +  SideAsString() + ";\0");
+  std::string answer = communicator.Transmit("GetDoor" +  SideAsString() + ";\0");
 
 	EDoorStates doorState;
 
@@ -118,7 +104,7 @@ void Door::PollDoorState()
 {
 	EDoorStates currentState = GetState();
 	EDoorStates newState = currentState;
-	eventGenerator->DoorStateChanged(); // Note: to make sure we didn't miss a state change.
+	eventGenerator.DoorStateChanged(); // Note: to make sure we didn't miss a state change.
 
 	continueDoorStatePolling = true;
 	while(continueDoorStatePolling)
@@ -127,7 +113,7 @@ void Door::PollDoorState()
 		if(currentState != newState)
 		{
 			currentState = newState;
-			eventGenerator->DoorStateChanged();
+			eventGenerator.DoorStateChanged();
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(20));

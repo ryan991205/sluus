@@ -1,14 +1,17 @@
 PRODUCT = waterlock
 
+.phony: all clean test
+
+CC = g++
 CFLAGS = -Wall -Werror -Wextra -pedantic -ggdb -O0 -std=c++11 -pthread -Iproduct -Iproduct/interfaces -Iproduct/enums -Iproduct/comLibs -g
+#CFLAGS += -Wno-reorder
+#CFLAGS += -Wno-unused-parameter
 
 SOURCES = $(wildcard product/*.cpp) \
-          $(wildcard product/comLibs/*.c)
+          $(wildcard product/*/*.c)
 
 HEADERS = $(wildcard product/*.h) \
-          $(wildcard product/interfaces/*.h) \
-          $(wildcard product/enums/*.h) \
-					$(wildcard product/comLibs/*.h)
+          $(wildcard product/*/*.h)
 
 TEST = test_$(PRODUCT)
 TEST_SOURCES = $(filter-out product/main.cpp, $(SOURCES)) \
@@ -16,10 +19,6 @@ TEST_SOURCES = $(filter-out product/main.cpp, $(SOURCES)) \
 TEST_HEADERS = $(HEADERS) \
 			 $(wildcard test/*.h)
 TEST_LIBS = -lgtest -lgmock -lgmock_main -lpthread
-
-CC = g++
-
-.phony: all clean test
 
 all: $(PRODUCT)
 

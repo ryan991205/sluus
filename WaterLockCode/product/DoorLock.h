@@ -12,7 +12,7 @@
 class DoorLock : public ILock
 {
 	public:
-		DoorLock(EWaterLockSides side, Communicator* const TCP_Con);
+		DoorLock(EWaterLockSides side, Communicator& TCP_Con);
 
 		void Lock();
 
@@ -22,12 +22,12 @@ class DoorLock : public ILock
 
 	private:
 		EWaterLockSides side;
-		Communicator* communicator;
+		Communicator& communicator;
 
 		std::string SideAsString();
 
 		// private copy constructor and assignment operator to prevent making copies
-    DoorLock(const DoorLock&) { /* do nothing */ };
+    DoorLock(const DoorLock& arg) : communicator(arg.communicator) { /* do nothing */ };
     DoorLock& operator= (const DoorLock&) { return *this; };
 };
 

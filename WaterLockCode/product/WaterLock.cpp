@@ -7,79 +7,55 @@
 #include <iostream> // Note: debug
 
 
-WaterLock::WaterLock(EDoorTypes lowWaterDoor, EWaterLockSides lowWaterDoorSide, EDoorTypes highWaterDoor, int port)
+WaterLock::WaterLock(Door& _lowWaterDoor, Door& _highWaterDoor, IWaterSensor& _waterSensor, EventGenerator& _eventGenerator)
+	: lowWaterDoor(_lowWaterDoor)
+	, highWaterDoor(_highWaterDoor)
+	, waterSensor(_waterSensor)
+	, eventGenerator(_eventGenerator)
 {
-	communicator = new Communicator(port);
-
-	waterSensor = new WaterSensor(&eventGenerator, communicator);
-
-	switch(lowWaterDoor)
-	{
-		case Normal    : this->lowWaterDoor = new Door(lowWaterDoorSide, &eventGenerator, communicator);          break;
-		case Repeating : this->lowWaterDoor = new RepeatingDoor(lowWaterDoorSide, &eventGenerator, communicator); break;
-		case Lockable  : this->lowWaterDoor = new LockableDoor(lowWaterDoorSide, &eventGenerator, communicator);  break;
-		default        : throw std::logic_error("WaterLock::WaterLock(): lowWaterDoor == unsuported door");     	break;
-	}
-
-	EWaterLockSides highWaterDoorSide;
-	if(lowWaterDoorSide == Left)
-	{
-		highWaterDoorSide = Right;
-	}
-	else
-	{
-		highWaterDoorSide = Left;
-	}
-
-	switch(highWaterDoor)
-	{
-		case Normal    : this->highWaterDoor = new Door(highWaterDoorSide, &eventGenerator, communicator);          break;
-		case Repeating : this->highWaterDoor = new RepeatingDoor(highWaterDoorSide, &eventGenerator, communicator); break;
-		case Lockable  : this->highWaterDoor = new LockableDoor(highWaterDoorSide, &eventGenerator, communicator);  break;
-		default        : throw std::logic_error("WaterLock::WaterLock(): highWaterDoor == unsuported door");     		break;
-	}
-
 	SetOpenDoor();
+
+	continueEventPolling = false;
+	eventPollThread = nullptr;
+
+	continueWaterLevelPolling = false;
+	waterLevelPollThread = nullptr;
+
+	CloseAllValves();
+	TrafficLightsRed();
 
 	state = ST_NormalOperation;
 	Entry_NormalOperationState();
 
-	pollThread = nullptr;
-	StartPollingEventsOnPollThread();
+	StartPollingEventsOnEventPollThread();
 }
 
 WaterLock::~WaterLock()
 {
-	KillPollThread();
-	delete waterSensor;
-	delete lowWaterDoor;
-	delete highWaterDoor;
-	delete communicator;
-}
-
-IUserInputEventGenerator* WaterLock::GetEventGenerator()
-{
-	return &eventGenerator;
+	KillEventPollThread();
+	KillWaterLevelPollThread();
 }
 
 void WaterLock::RaiseWater(EWaterLevels waterLevel)
 {
+	std::cout << "WaterLock::RaiseWater()" << std::endl;
+
 	switch(waterLevel)
 	{
 		case Low              :
-			highWaterDoor->GetValve(Lower)->Open();
+			highWaterDoor.GetValve(Lower)->Open();
 			break;
 		case BelowMiddleValve :
-			highWaterDoor->GetValve(Lower)->Open();
+			highWaterDoor.GetValve(Lower)->Open();
 			break;
 		case AboveMiddleValve :
-			highWaterDoor->GetValve(Lower)->Open();
-			highWaterDoor->GetValve(Middle)->Open();
+			highWaterDoor.GetValve(Lower)->Open();
+			highWaterDoor.GetValve(Middle)->Open();
 			break;
 		case AboveUpperValve  :
-			highWaterDoor->GetValve(Lower)->Open();
-			highWaterDoor->GetValve(Middle)->Open();
-			highWaterDoor->GetValve(Upper)->Open();
+			highWaterDoor.GetValve(Lower)->Open();
+			highWaterDoor.GetValve(Middle)->Open();
+			highWaterDoor.GetValve(Upper)->Open();
 			break;
 		default : throw std::logic_error("WaterLock::RaiseWater(): waterLevel == unsuported water level"); break;
 	}
@@ -87,18 +63,24 @@ void WaterLock::RaiseWater(EWaterLevels waterLevel)
 
 void WaterLock::LowerWater()
 {
-	lowWaterDoor->GetValve(Lower)->Open();
+	std::cout << "WaterLock::LowerWater()" << std::endl;
+
+	lowWaterDoor.GetValve(Lower)->Open();
 }
 
-void WaterLock::StartPollingEventsOnPollThread()
+void WaterLock::StartPollingEventsOnEventPollThread()
 {
-	KillPollThread();
+	std::cout << "WaterLock::StartPollingEventsOnEventPollThread()" << std::endl;
 
-	pollThread = new std::thread(&WaterLock::PollEvents, this);
+	KillEventPollThread();
+
+	eventPollThread = new std::thread(&WaterLock::PollEvents, this);
 }
 
 void WaterLock::PollEvents()
 {
+	std::cout << "WaterLock::KillEventPollThread()" << std::endl;
+
 	continueEventPolling = true;
 	while(continueEventPolling)
 	{
@@ -109,19 +91,88 @@ void WaterLock::PollEvents()
 	}
 }
 
-void WaterLock::KillPollThread()
+void WaterLock::KillEventPollThread()
 {
-	if(pollThread != nullptr)
+	std::cout << "WaterLock::KillEventPollThread()" << std::endl;
+
+	if(eventPollThread != nullptr)
 	{
-		if(pollThread->joinable())
+		if(eventPollThread->joinable())
 		{
 			continueEventPolling = false;
-			pollThread->join();
+			eventPollThread->join();
 		}
 
-		delete pollThread;
-		pollThread = nullptr;
+		delete eventPollThread;
+		eventPollThread = nullptr;
 	}
+}
+
+void WaterLock::StartPollingWaterLevelOnWaterLevelPollThread()
+{
+		std::cout << "WaterLock::StartPollingWaterLevelOnWaterLevelPollThread()" << std::endl;
+
+    KillWaterLevelPollThread();
+    waterLevelPollThread = new std::thread(&WaterLock::PollWaterLevel, this);
+}
+
+void WaterLock::PollWaterLevel()
+{
+		std::cout << "WaterLock::PollWaterLevel()" << std::endl;
+
+    EWaterLevels currentWaterLevel = waterSensor.GetWaterLevel();
+    EWaterLevels newWaterLevel = currentWaterLevel;
+    eventGenerator.WaterLevelChanged(); // Note: to make sure we didn't miss a water level state change.
+
+    continueWaterLevelPolling = true;
+    while(continueWaterLevelPolling)
+    {
+        //std::cout << "WaterSensor::PollWaterLevel(): loop!" << std::endl; // Note: debug
+
+        newWaterLevel = waterSensor.GetWaterLevel();
+        if(currentWaterLevel != newWaterLevel)
+        {
+            currentWaterLevel = newWaterLevel;
+            eventGenerator.WaterLevelChanged();
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+
+		std::cout << "Hello!!!" << std::endl;
+}
+
+void WaterLock::KillWaterLevelPollThread()
+{
+		std::cout << "WaterLock::KillWaterLevelPollThread()" << std::endl;
+
+		std::cout << "1" << std::endl;
+
+    if(waterLevelPollThread != nullptr)
+    {
+				std::cout << "2" << std::endl;
+
+        if(waterLevelPollThread->joinable())
+        {
+						std::cout << "3" << std::endl;
+
+            continueWaterLevelPolling = false;
+
+						std::cout << "4" << std::endl;
+
+            waterLevelPollThread->join();
+        }
+
+				std::cout << "5" << std::endl;
+
+        delete waterLevelPollThread;
+
+				std::cout << "6" << std::endl;
+
+        waterLevelPollThread = nullptr;
+
+				std::cout << "7" << std::endl;
+    }
 }
 
 void WaterLock::HandleEvent(EEvents ev)
@@ -131,7 +182,7 @@ void WaterLock::HandleEvent(EEvents ev)
 		return; //Note: no new event
 	}
 
-	std::cout << "new ev: ";
+	std::cout << "WaterLock::HandleEvent(): new ev: ";
 	switch(ev)
 	{
 		case EV_StartButtonPressed 									: std::cout << "EV_StartButtonPressed," << std::endl; 								 break;
@@ -366,12 +417,12 @@ void WaterLock::HandleRaisingWaterState(EEvents ev)
 			std::cout << "WaterLevelChanged" << std::endl;
 			Exit_RaisingWaterState();
 
-			if(waterSensor->GetWaterLevel() == High)
+			if(waterSensor.GetWaterLevel() == High)
 			{
 				CloseHighWaterDoorValves();
 				Exit_BothDoorsClosedState();
 				normalOperationSubState = ST_OneDoorOpen;
-				openDoor = highWaterDoor;
+				openDoor = &highWaterDoor;
 				Entry_OneDoorOpenState();
 			}
 			else
@@ -396,13 +447,13 @@ void WaterLock::HandleLoweringWaterState(EEvents ev)
 			Entry_RaisingWaterState();
 			break;
 		case EV_WaterLevelChanged :
-			if(waterSensor->GetWaterLevel() == Low)
+			if(waterSensor.GetWaterLevel() == Low)
 			{
 				Exit_LoweringWaterState();
 				CloseLowWaterDoorValves();
 				Exit_BothDoorsClosedState();
 				normalOperationSubState = ST_OneDoorOpen;
-				openDoor = lowWaterDoor;
+				openDoor = &lowWaterDoor;
 				Entry_OneDoorOpenState();
 			}
 			break;
@@ -497,26 +548,39 @@ void WaterLock::Exit_OneDoorOpenState()
 void WaterLock::Entry_BothDoorsClosedState()
 {
 	std::cout << "WaterLock::Entry_BothDoorsClosedState()" << std::endl;
+	//std::cout << "1" << std::endl;
 
-	waterSensor->StartPollingWaterLevelOnPollThread();
+	StartPollingWaterLevelOnWaterLevelPollThread();
 
-	if(waterSensor->GetWaterLevel() == High)
+	//std::cout << "2" << std::endl;
+
+	if(waterSensor.GetWaterLevel() == High)
 	{
+		//std::cout << "3" << std::endl;
+
 		bothDoorsClosedSubState = ST_LoweringWater;
 		Entry_LoweringWaterState();
+
+		//std::cout << "4" << std::endl;
 	}
 	else
 	{
+		//std::cout << "5" << std::endl;
+
 		bothDoorsClosedSubState = ST_RaisingWater;
 		Entry_RaisingWaterState();
+
+		//std::cout << "6" << std::endl;
 	}
+
+	std::cout << "7" << std::endl;
 }
 
 void WaterLock::Exit_BothDoorsClosedState()
 {
 	std::cout << "WaterLock::Exit_BothDoorsClosedState()" << std::endl;
 
-	waterSensor->KillPollThread();
+	KillWaterLevelPollThread();
 }
 
 void WaterLock::Entry_OpeningState()
@@ -597,7 +661,7 @@ void WaterLock::Entry_RaisingWaterState()
 {
 	std::cout << "WaterLock::Entry_RaisingWaterState()" << std::endl;
 
-	RaiseWater(waterSensor->GetWaterLevel());
+	RaiseWater(waterSensor.GetWaterLevel());
 }
 
 void WaterLock::Exit_RaisingWaterState()
@@ -625,26 +689,26 @@ void WaterLock::StopDoors()
 {
 	std::cout << "WaterLock::StopDoors()" << std::endl;
 
-	lowWaterDoor->Stop();
-	highWaterDoor->Stop();
+	lowWaterDoor.Stop();
+	highWaterDoor.Stop();
 }
 
 void WaterLock::CloseLowWaterDoorValves()
 {
 	std::cout << "WaterLock::CloseLowWaterDoorValves()" << std::endl;
 
-	lowWaterDoor->GetValve(Lower)->Close();
-	lowWaterDoor->GetValve(Middle)->Close();
-	lowWaterDoor->GetValve(Upper)->Close();
+	lowWaterDoor.GetValve(Lower)->Close();
+	lowWaterDoor.GetValve(Middle)->Close();
+	lowWaterDoor.GetValve(Upper)->Close();
 }
 
 void WaterLock::CloseHighWaterDoorValves()
 {
 	std::cout << "WaterLock::CloseHighWaterDoorValves()" << std::endl;
 
-	highWaterDoor->GetValve(Lower)->Close();
-	highWaterDoor->GetValve(Middle)->Close();
-	highWaterDoor->GetValve(Upper)->Close();
+	highWaterDoor.GetValve(Lower)->Close();
+	highWaterDoor.GetValve(Middle)->Close();
+	highWaterDoor.GetValve(Upper)->Close();
 }
 
 void WaterLock::CloseAllValves()
@@ -659,11 +723,11 @@ void WaterLock::TrafficLightsRed()
 {
 	std::cout << "WaterLock::TrafficLightsRed()" << std::endl;
 
-	lowWaterDoor->GetTrafficLight(Inside)->Red();
-	lowWaterDoor->GetTrafficLight(Outside)->Red();
+	lowWaterDoor.GetTrafficLight(Inside)->Red();
+	lowWaterDoor.GetTrafficLight(Outside)->Red();
 
-	highWaterDoor->GetTrafficLight(Inside)->Red();
-	highWaterDoor->GetTrafficLight(Outside)->Red();
+	highWaterDoor.GetTrafficLight(Inside)->Red();
+	highWaterDoor.GetTrafficLight(Outside)->Red();
 }
 
 void WaterLock::SetOpenDoor()
@@ -671,7 +735,7 @@ void WaterLock::SetOpenDoor()
 	std::cout << "WaterLock::SetOpenDoor()" << std::endl;
 
 	bool lowWaterDoorOpen = false;
-	switch(this->lowWaterDoor->GetState())
+	switch(lowWaterDoor.GetState())
 	{
 		case DoorLocked  : lowWaterDoorOpen = false; break;
     case DoorClosed  : lowWaterDoorOpen = false; break;
@@ -684,7 +748,7 @@ void WaterLock::SetOpenDoor()
 	}
 
 	bool highWaterDoorOpen = false;
-	switch(this->highWaterDoor->GetState())
+	switch(highWaterDoor.GetState())
 	{
 		case DoorLocked  : highWaterDoorOpen = false; break;
     case DoorClosed  : highWaterDoorOpen = false; break;
@@ -702,11 +766,11 @@ void WaterLock::SetOpenDoor()
 	}
 	else if(lowWaterDoorOpen)
 	{
-		openDoor = this->lowWaterDoor;
+		openDoor = &lowWaterDoor;
 	}
 	else if(highWaterDoorOpen)
 	{
-		openDoor = this->highWaterDoor;
+		openDoor = &highWaterDoor;
 	}
 	else
 	{

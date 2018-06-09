@@ -1,26 +1,21 @@
 #include "TrafficLight.h"
 
 
-TrafficLight::TrafficLight(EWaterLockSides side, ETrafficLights light, Communicator* const TCP_Con)
+TrafficLight::TrafficLight(EWaterLockSides side, ETrafficLights light, Communicator& TCP_Con)
+    : communicator(TCP_Con)
 {
-    if(TCP_Con == nullptr)
-    {
-        throw std::logic_error("TrafficLight::TrafficLight(): TCP_Con == nullptr");
-    }
-
-	communicator = TCP_Con;
 	this->side = side;
 	this->light = light;
 }
 
 void TrafficLight::Green()
 {
-    if(communicator->Transmit("SetTrafficLight" + GetLightNumber() + "Red:off;\n") != "ack;")
+    if(communicator.Transmit("SetTrafficLight" + GetLightNumber() + "Red:off;\n") != "ack;")
     {
         throw std::logic_error("TrafficLight::Green(): Green() recieved !ack");
     }
 
-    if(communicator->Transmit("SetTrafficLight" + GetLightNumber() + "Green:on;\n") != "ack;")
+    if(communicator.Transmit("SetTrafficLight" + GetLightNumber() + "Green:on;\n") != "ack;")
     {
         throw std::logic_error("TrafficLight::Green(): Green() recieved !ack");
     }
@@ -28,12 +23,12 @@ void TrafficLight::Green()
 
 void TrafficLight::Red()
 {
-    if(communicator->Transmit("SetTrafficLight" + GetLightNumber() + "Green:off;\n") != "ack;")
+    if(communicator.Transmit("SetTrafficLight" + GetLightNumber() + "Green:off;\n") != "ack;")
     {
         throw std::logic_error("TrafficLight::Green(): Green() recieved !ack");
     }
 
-    if(communicator->Transmit("SetTrafficLight" + GetLightNumber() + "Red:on;\n") != "ack;")
+    if(communicator.Transmit("SetTrafficLight" + GetLightNumber() + "Red:on;\n") != "ack;")
     {
         throw std::logic_error("TrafficLight::Red(): Red() recieved !ack");
     }
