@@ -6,19 +6,15 @@
 #include "Door.h"
 #include "RepeatingDoor.h"
 #include "LockableDoor.h"
-#include "IUserInputEventGenerator.h"
-#include "EventGenerator.h"
-#include "WaterSensor.h"
-#include "Communicator.h"
-#include "EEvents.h"
+#include "IWaterLockEventGenerator.h"
+#include "IWaterSensor.h"
 #include "EStates.h"
-#include "EDoorTypes.h"
 
 
 class WaterLock
 {
 	public:
-		WaterLock(Door& lowWaterDoor, Door& highWaterDoor, IWaterSensor& waterSensor, EventGenerator& eventGenerator);
+		WaterLock(Door& lowWaterDoor, Door& highWaterDoor, IWaterSensor& waterSensor, IWaterLockEventGenerator& eventGenerator);
 		~WaterLock();
 
 	private:
@@ -28,7 +24,7 @@ class WaterLock
 		IWaterSensor& waterSensor;
 
 		///// Sate Machine Members /////
-		EventGenerator& eventGenerator;
+		IWaterLockEventGenerator& eventGenerator;
 		EStates state;
 		ENormalOperationSubStates normalOperationSubState;
 		EOneDoorOpenSubStates oneDoorOpenSubState;

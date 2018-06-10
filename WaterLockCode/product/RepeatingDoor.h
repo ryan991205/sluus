@@ -8,9 +8,9 @@
 class RepeatingDoor : public Door, public IRepeatable
 {
 	public:
-		RepeatingDoor(EWaterLockSides side, Communicator& TCP_Con, IWaterLockEventGenerator& _eventGenerator,
-				 				  IValve& _lowerValve, IValve& _middleValve, IValve& _upperValve, ITrafficLight& _insideLight,
-				 				  ITrafficLight& _outsideLight);
+		RepeatingDoor(EWaterLockSides side, Communicator& TCP_Con, IWaterLockEventGenerator& eventGenerator,
+				 				  IValve& lowerValve, IValve& middleValve, IValve& upperValve, ITrafficLight& insideLight,
+				 				  ITrafficLight& outsideLight);
 		~RepeatingDoor();
 
 		void Open() override;

@@ -3,8 +3,6 @@
 #include "Valve.h"
 #include "TrafficLight.h"
 
-#include <iostream> // Note: debug
-
 
 Door::Door(EWaterLockSides side, Communicator& TCP_Con, IWaterLockEventGenerator& _eventGenerator,
 				 	 IValve& _lowerValve, IValve& _middleValve, IValve& _upperValve, ITrafficLight& _insideLight,
@@ -124,8 +122,6 @@ void Door::KillPollThread()
 {
 	if(pollThread != nullptr)
 	{
-		std::cout << "Door::KillPollThread()" << std::endl; // Note: debug
-
 		if(pollThread->joinable())
 		{
 			continueDoorStatePolling = false;

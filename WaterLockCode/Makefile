@@ -4,8 +4,6 @@ PRODUCT = waterlock
 
 CC = g++
 CFLAGS = -Wall -Werror -Wextra -pedantic -ggdb -O0 -std=c++11 -pthread -Iproduct -Iproduct/interfaces -Iproduct/enums -Iproduct/comLibs -g
-#CFLAGS += -Wno-reorder
-#CFLAGS += -Wno-unused-parameter
 
 SOURCES = $(wildcard product/*.cpp) \
           $(wildcard product/*/*.c)

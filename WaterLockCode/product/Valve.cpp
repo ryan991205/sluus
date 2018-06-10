@@ -1,7 +1,5 @@
 #include "Valve.h"
 
-#include <iostream> // Note: debug
-
 
 Valve::Valve(EWaterLockSides side, EValves valve, Communicator& TCP_Con)
 	: communicator(TCP_Con)
@@ -22,7 +20,6 @@ void Valve::Close()
 {
 	if(communicator.Transmit("SetDoor" + SideAsString() + "Valve" + ValveAsString() + ":close;\n") != "ack;")
   {
-		std::cout << "!ack" << std::endl;
 		throw std::logic_error("Valve::Close(): Open() recieved !ack");
   }
 }

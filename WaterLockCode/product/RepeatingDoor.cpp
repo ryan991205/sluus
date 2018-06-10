@@ -1,7 +1,5 @@
 #include "RepeatingDoor.h"
 
-#include <iostream> // Note: debug
-
 
 RepeatingDoor::RepeatingDoor(EWaterLockSides side, Communicator& TCP_Con, IWaterLockEventGenerator& _eventGenerator,
 				 	 								   IValve& _lowerValve, IValve& _middleValve, IValve& _upperValve, ITrafficLight& _insideLight,
@@ -56,8 +54,6 @@ void RepeatingDoor::RepeatDoorOpenCommand()
 	continuePushingDoorCommand = true;
 	while(continuePushingDoorCommand)
 	{
-		//std::cout << "RepeatingDoor::RepeatDoorOpenCommand(): loop!" << std::endl; // Note: debug
-
 		if(communicator.Transmit("SetDoor" + SideAsString() + ":open;\n") != "ack;")
   	{
 			throw std::logic_error("RepeatingDoor::RepeatDoorOpenCommand(): RepeatDoorOpenCommand() recieved !ack");

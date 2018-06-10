@@ -13,11 +13,6 @@ LockableDoor::LockableDoor(EWaterLockSides side, Communicator& TCP_Con, IWaterLo
 
 }
 
-LockableDoor::~LockableDoor()
-{
-
-}
-
 void LockableDoor::Open()
 {
 	lock.Unlock();

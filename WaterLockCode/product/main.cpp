@@ -4,66 +4,75 @@
 
 #include <thread>
 
-#include "Valve.h"
-#include "TrafficLight.h"
+#include "Communicator.h"
+
+#include "WaterLock.h"
+#include "WaterSensor.h"
+//#include "IUserInputEventGenerator.h"
+#include "EventGenerator.h"
+
 #include "Door.h"
 #include "RepeatingDoor.h"
 #include "LockableDoor.h"
-#include "WaterSensor.h"
-#include "EventGenerator.h"
-#include "Communicator.h"
+#include "Valve.h"
+#include "TrafficLight.h"
 #include "DoorLock.h"
 
-#include "WaterLock.h"
 #include "EWaterLockSides.h"
+
+#define WATERLOCK1_PORT 5555
+#define WATERLOCK2_PORT 5556
+#define WATERLOCK3_PORT 5557
+#define WATERLOCK4_PORT 5558
 
 
 void ShowMenu()
 {
-  std::cout << "\n  MENU:"                                                                                                                                      << std::endl;
-  std::cout << "============================================================================================================================================"   << std::endl;
-  std::cout << " | [s1StartBtn          / 1s]   Presses start button for WaterLock1.                                                                      | "   << std::endl;
-  std::cout << " | [s1ReleaseInsideBtn  / 1i]   Presses the toggle button for the inside traffic light of WaterLock1.                                     | "   << std::endl;
-  std::cout << " | [s1ReleaseOutsideBtn / 1o]   Presses the toggle button for the outside traffic light of WaterLock1.                                    | "   << std::endl;
-  std::cout << " | [s1EmergencyBtn      / 1e]   Presses the emergency button for WaterLock1.                                                              | "   << std::endl;
-  std::cout << " | [s1StopEmergencyBtn  / 1n]   Presses the button that returns the WaterLock to normal operations when in emergeny state for WaterLock1. | "   << std::endl;
-  std::cout << " |                                                                                                                                        | "   << std::endl;
-  std::cout << " | [s2StartBtn          / 2s]   Presses start button for WaterLock2.                                                                      | "   << std::endl;
-  std::cout << " | [s2ReleaseInsideBtn  / 2i]   Presses the toggle button for the inside traffic light of WaterLock2.                                     | "   << std::endl;
-  std::cout << " | [s2ReleaseOutsideBtn / 2o]   Presses the toggle button for the outside traffic light of WaterLock2.                                    | "   << std::endl;
-  std::cout << " | [s2EmergencyBtn      / 2e]   Presses the emergency button for WaterLock2.                                                              | "   << std::endl;
-  std::cout << " | [s2StopEmergencyBtn  / 2n]   Presses the button that returns the WaterLock to normal operations when in emergeny state for WaterLock2. | "   << std::endl;
-  std::cout << " |                                                                                                                                        | "   << std::endl;
-  std::cout << " | [s3StartBtn          / 3s]   Presses start button for WaterLock3.                                                                      | "   << std::endl;
-  std::cout << " | [s3ReleaseInsideBtn  / 3i]   Presses the toggle button for the inside traffic light of WaterLock3.                                     | "   << std::endl;
-  std::cout << " | [s3ReleaseOutsideBtn / 3o]   Presses the toggle button for the outside traffic light of WaterLock3.                                    | "   << std::endl;
-  std::cout << " | [s3EmergencyBtn      / 3e]   Presses the emergency button for WaterLock3.                                                              | "   << std::endl;
-  std::cout << " | [s3StopEmergencyBtn  / 3n]   Presses the button that returns the WaterLock to normal operations when in emergeny state for WaterLock3. | "   << std::endl;
-  std::cout << " |                                                                                                                                        | "   << std::endl;
-  std::cout << " | [s4StartBtn          / 4s]   Presses start button for WaterLock4.                                                                      | "   << std::endl;
-  std::cout << " | [s4ReleaseInsideBtn  / 4i]   Presses the toggle button for the inside traffic light of WaterLock4.                                     | "   << std::endl;
-  std::cout << " | [s4ReleaseOutsideBtn / 4o]   Presses the toggle button for the outside traffic light of WaterLock4.                                    | "   << std::endl;
-  std::cout << " | [s4EmergencyBtn      / 4e]   Presses the emergency button for WaterLock4.                                                              | "   << std::endl;
-  std::cout << " | [s4StopEmergencyBtn  / 4n]   Presses the button that returns the WaterLock to normal operations when in emergeny state for WaterLock4. | "   << std::endl;
-  std::cout << " |                                                                                                                                        | "   << std::endl;
-  std::cout << " | [quit                / q ]   Quit the program.                                                                                         | "   << std::endl;
-  std::cout << "============================================================================================================================================\n" << std::endl;
+  std::cout << "\n  MENU:"                                                                                                                                         << std::endl;
+  std::cout << " =============================================================================================================================================="   << std::endl;
+  std::cout << "  | [ s1StartBtn          / 1s ]   Presses start button for WaterLock1.                                                                      | "   << std::endl;
+  std::cout << "  | [ s1ReleaseInsideBtn  / 1i ]   Presses the toggle button for the inside traffic light of WaterLock1.                                     | "   << std::endl;
+  std::cout << "  | [ s1ReleaseOutsideBtn / 1o ]   Presses the toggle button for the outside traffic light of WaterLock1.                                    | "   << std::endl;
+  std::cout << "  | [ s1EmergencyBtn      / 1e ]   Presses the emergency button for WaterLock1.                                                              | "   << std::endl;
+  std::cout << "  | [ s1StopEmergencyBtn  / 1n ]   Presses the button that returns the WaterLock to normal operations when in emergeny state for WaterLock1. | "   << std::endl;
+  std::cout << "  |                                                                                                                                          | "   << std::endl;
+  std::cout << "  | [ s2StartBtn          / 2s ]   Presses start button for WaterLock2.                                                                      | "   << std::endl;
+  std::cout << "  | [ s2ReleaseInsideBtn  / 2i ]   Presses the toggle button for the inside traffic light of WaterLock2.                                     | "   << std::endl;
+  std::cout << "  | [ s2ReleaseOutsideBtn / 2o ]   Presses the toggle button for the outside traffic light of WaterLock2.                                    | "   << std::endl;
+  std::cout << "  | [ s2EmergencyBtn      / 2e ]   Presses the emergency button for WaterLock2.                                                              | "   << std::endl;
+  std::cout << "  | [ s2StopEmergencyBtn  / 2n ]   Presses the button that returns the WaterLock to normal operations when in emergeny state for WaterLock2. | "   << std::endl;
+  std::cout << "  |                                                                                                                                          | "   << std::endl;
+  std::cout << "  | [ s3StartBtn          / 3s ]   Presses start button for WaterLock3.                                                                      | "   << std::endl;
+  std::cout << "  | [ s3ReleaseInsideBtn  / 3i ]   Presses the toggle button for the inside traffic light of WaterLock3.                                     | "   << std::endl;
+  std::cout << "  | [ s3ReleaseOutsideBtn / 3o ]   Presses the toggle button for the outside traffic light of WaterLock3.                                    | "   << std::endl;
+  std::cout << "  | [ s3EmergencyBtn      / 3e ]   Presses the emergency button for WaterLock3.                                                              | "   << std::endl;
+  std::cout << "  | [ s3StopEmergencyBtn  / 3n ]   Presses the button that returns the WaterLock to normal operations when in emergeny state for WaterLock3. | "   << std::endl;
+  std::cout << "  |                                                                                                                                          | "   << std::endl;
+  std::cout << "  | [ s4StartBtn          / 4s ]   Presses start button for WaterLock4.                                                                      | "   << std::endl;
+  std::cout << "  | [ s4ReleaseInsideBtn  / 4i ]   Presses the toggle button for the inside traffic light of WaterLock4.                                     | "   << std::endl;
+  std::cout << "  | [ s4ReleaseOutsideBtn / 4o ]   Presses the toggle button for the outside traffic light of WaterLock4.                                    | "   << std::endl;
+  std::cout << "  | [ s4EmergencyBtn      / 4e ]   Presses the emergency button for WaterLock4.                                                              | "   << std::endl;
+  std::cout << "  | [ s4StopEmergencyBtn  / 4n ]   Presses the button that returns the WaterLock to normal operations when in emergeny state for WaterLock4. | "   << std::endl;
+  std::cout << "  |                                                                                                                                          | "   << std::endl;
+  std::cout << "  | [ quit                / q  ]   Quit the program.                                                                                         | "   << std::endl;
+  std::cout << " ==============================================================================================================================================\n" << std::endl;
 }
 
 int main()
 {
-  std::cout << "\nProgram Start\n" << std::endl;
+  std::cout << "\033cProgram Start\n" << std::endl;
 
   std::cout << "Connecting to hardware... " << std::flush;
-  Communicator w1_TCP_Con(5555);
-  Communicator w2_TCP_Con(5556);
-  Communicator w3_TCP_Con(5557);
-  Communicator w4_TCP_Con(5558);
-  std::cout << "done!\n" << std::endl;
+  Communicator w1_TCP_Con(WATERLOCK1_PORT);
+  Communicator w2_TCP_Con(WATERLOCK2_PORT);
+  Communicator w3_TCP_Con(WATERLOCK3_PORT);
+  Communicator w4_TCP_Con(WATERLOCK4_PORT);
+  std::cout << "done!" << std::endl;
 
-  // WaterLock 1, normal
+  std::cout << "Setting up program...     " << std::flush;
+  //*// WaterLock 1, normal
   EventGenerator w1_EventGenerator;
-  WaterSensor w1_WaterSensor(w1_EventGenerator, w1_TCP_Con);
+  WaterSensor w1_WaterSensor(w1_TCP_Con);
 
   Valve w1_Low_LowerValve(Left, Lower, w1_TCP_Con);
   Valve w1_Low_MiddleValve(Left, Middle, w1_TCP_Con);
@@ -80,10 +89,11 @@ int main()
   Door w1_HighWaterDoor(Right, w1_TCP_Con, w1_EventGenerator, w1_High_LowerValve, w1_High_MiddleValve, w1_High_UpperValve, w1_High_InsideLight, w1_High_OutsideLight);
 
   WaterLock waterLock1_Normal(w1_LowWaterDoor, w1_HighWaterDoor, w1_WaterSensor, w1_EventGenerator);
+  //*/
 
   //*// WaterLock 2, normal
   EventGenerator w2_EventGenerator;
-  WaterSensor w2_WaterSensor(w2_EventGenerator, w2_TCP_Con);
+  WaterSensor w2_WaterSensor(w2_TCP_Con);
 
   Valve w2_Low_LowerValve(Left, Lower, w2_TCP_Con);
   Valve w2_Low_MiddleValve(Left, Middle, w2_TCP_Con);
@@ -104,7 +114,7 @@ int main()
 
   //*// WaterLock 3, lockable
   EventGenerator w3_EventGenerator;
-  WaterSensor w3_WaterSensor(w3_EventGenerator, w3_TCP_Con);
+  WaterSensor w3_WaterSensor(w3_TCP_Con);
 
   Valve w3_Low_LowerValve(Left, Lower, w3_TCP_Con);
   Valve w3_Low_MiddleValve(Left, Middle, w3_TCP_Con);
@@ -127,7 +137,7 @@ int main()
 
   //*// WaterLock 4, repeatable
   EventGenerator w4_EventGenerator;
-  WaterSensor w4_WaterSensor(w4_EventGenerator, w4_TCP_Con);
+  WaterSensor w4_WaterSensor(w4_TCP_Con);
 
   Valve w4_Low_LowerValve(Left, Lower, w4_TCP_Con);
   Valve w4_Low_MiddleValve(Left, Middle, w4_TCP_Con);
@@ -145,12 +155,16 @@ int main()
 
   WaterLock waterLock4_Normal(w4_LowWaterDoor, w4_HighWaterDoor, w4_WaterSensor, w4_EventGenerator);
   //*/
+  std::cout << "done!" << std::endl;
 
+  ShowMenu();
   std::string ans = "";
   while((ans != "quit") && (ans != "q"))
   {
-    ShowMenu();
     std::cin >> ans;
+    std::cout << "\033c" << std::flush;
+    ShowMenu();
+    std::cout << "\nLast given input: [ " + ans  + " ]" << std::endl;
 
     //*//
          if((ans == "s1StartBtn"         ) || (ans == "1s"))  w1_EventGenerator.StartButtonPressed();
@@ -185,11 +199,11 @@ int main()
     //*/
 
     else if((ans == "quit") || (ans == "q")) std::cout << "Exiting program." << std::endl;
-    else std::cout << "Input was: [" << ans << "]. Input not recognized, please try again." << std::endl;
+    else std::cout << "Input not recognized, please try again." << std::endl;
 
     std::cout << std::endl;
   }
 
-  std::cout << "\nProgram End\n" << std::endl;
+  std::cout << "Program End\n" << std::endl;
   return 0;
 }

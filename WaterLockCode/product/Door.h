@@ -17,9 +17,9 @@
 class Door : public IDoor
 {
 	public:
-		Door(EWaterLockSides side, Communicator& TCP_Con, IWaterLockEventGenerator& _eventGenerator,
-				 IValve& _lowerValve, IValve& _middleValve, IValve& _upperValve, ITrafficLight& _insideLight,
-				 ITrafficLight& _outsideLight);
+		Door(EWaterLockSides side, Communicator& TCP_Con, IWaterLockEventGenerator& eventGenerator,
+				 IValve& lowerValve, IValve& middleValve, IValve& upperValve, ITrafficLight& insideLight,
+				 ITrafficLight& outsideLight);
 		~Door();
 
 		ITrafficLight* GetTrafficLight(ETrafficLights trafficLight);
@@ -54,7 +54,6 @@ class Door : public IDoor
 		void PollDoorState();
 
 		// private copy constructor and assignment operator to prevent making copies
-  	Door& operator= (const Door&) { return *this; };
 		Door(const Door& arg) : side(arg.side)
 													, communicator(arg.communicator)
 													, eventGenerator(arg.eventGenerator)
@@ -64,6 +63,7 @@ class Door : public IDoor
 													, insideLight(arg.insideLight)
 													, outsideLight(arg.outsideLight)
 														{ /* do nothing */ };
+		Door& operator= (const Door&) { return *this; };
 	};
 
 #endif

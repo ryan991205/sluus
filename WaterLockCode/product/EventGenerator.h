@@ -19,19 +19,13 @@ class EventGenerator : public IUserInputEventGenerator, public IWaterLockEventGe
 		EEvents GetEvent();
 
 		void StartButtonPressed();
-
 		void ReleaseInsideButtonPressed();
-
 		void ReleaseOutsideButtonPressed();
-
 		void EmergencyButtonPressed();
-
 		void ResumeNormalOperationsButtonPressed();
 
 		void WaterLevelChanged();
-
 		void DoorStateChanged();
-
 		void Emergency();
 
 	private:

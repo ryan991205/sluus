@@ -4,7 +4,6 @@
 #include <thread>
 
 #include "IWaterSensor.h"
-#include "IWaterLockEventGenerator.h"
 #include "Communicator.h"
 #include "EWaterLevels.h"
 
@@ -12,24 +11,14 @@
 class WaterSensor : public IWaterSensor
 {
 	public:
-		WaterSensor(IWaterLockEventGenerator& _eventGenerator, Communicator& TCP_Con);
-		~WaterSensor();
+		WaterSensor(Communicator& TCP_Con);
 
 		EWaterLevels GetWaterLevel();
 
-		//void StartPollingWaterLevelOnPollThread();
-		//void KillPollThread();
-
 	private:
-		IWaterLockEventGenerator& eventGenerator;
 		Communicator& communicator;
-		//std::thread* pollThread;
-		//bool continueWaterLevelPolling;
 
-		//void PollWaterLevel();
-
-		// private copy constructor and assignment operator to prevent making copies
-  	WaterSensor(const WaterSensor& arg) : eventGenerator(arg.eventGenerator), communicator(arg.communicator) { /* do nothing */ };
+  	WaterSensor(const WaterSensor& arg) : communicator(arg.communicator) { /* do nothing */ };
     WaterSensor& operator= (const WaterSensor&) { return *this; };
 };
 

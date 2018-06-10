@@ -15,7 +15,6 @@ class DoorLock : public ILock
 		DoorLock(EWaterLockSides side, Communicator& TCP_Con);
 
 		void Lock();
-
 		void Unlock();
 
 		ELockStates GetState();

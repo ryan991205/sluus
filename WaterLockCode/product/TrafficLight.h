@@ -7,7 +7,7 @@
 #include "Communicator.h"
 #include "EWaterLockSides.h"
 #include "ETrafficLights.h"
-//#include "ETrafficLightColors.h"
+
 
 class TrafficLight : public ITrafficLight
 {
@@ -15,10 +15,7 @@ class TrafficLight : public ITrafficLight
 		TrafficLight(EWaterLockSides side, ETrafficLights light, Communicator& TCP_Con);
 
 		void Green();
-
 		void Red();
-
-		//ETrafficLightColors GetColor();
 
 	private:
 		EWaterLockSides side;

@@ -1,11 +1,15 @@
 #ifndef IWATERLOCKEVENTGENERATOR_H
 #define IWATERLOCKEVENTGENERATOR_H
 
+#include "EEvents.h"
+
 
 class IWaterLockEventGenerator
 {
 	public:
 		virtual ~IWaterLockEventGenerator() {};
+
+		virtual EEvents GetEvent() = 0;
 
 		virtual void WaterLevelChanged() = 0;
 
